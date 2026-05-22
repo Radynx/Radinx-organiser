@@ -1,0 +1,104 @@
+import { onSnapshot, setDoc, type Unsubscribe } from 'firebase/firestore'
+import { userSettingsRef } from '@/lib/firestorePaths'
+import type { CalendarConnection, CalendarProvider, UserSettings } from '@/types/domain'
+import { defaultSettings } from '@/features/settings/defaultSettings'
+
+const mergeSettings = (data: Partial<UserSettings> | undefined): UserSettings => ({
+  ...defaultSettings,
+  ...data,
+  colors: {
+    ...defaultSettings.colors,
+    ...data?.colors,
+  },
+  calendarConnections: {
+    google: {
+      ...defaultSettings.calendarConnections.google,
+      ...data?.calendarConnections?.google,
+    },
+    apple: {
+      ...defaultSettings.calendarConnections.apple,
+      ...data?.calendarConnections?.apple,
+    },
+  },
+})
+
+export const subscribeToSettings = (
+  userId: string,
+  onData: (settings: UserSettings) => void,
+  onError: (error: Error) => void,
+): Unsubscribe =>
+  onSnapshot(
+    userSettingsRef(userId),
+    (snapshot) => {
+      onData(mergeSettings(snapshot.data() as Partial<UserSettings> | undefined))
+    },
+    (error) => onError(error),
+  )
+
+export const saveColorSettings = async (userId: string, colors: UserSettings['colors']) => {
+  await setDoc(
+    userSettingsRef(userId),
+    {
+      colors,
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true },
+  )
+}
+
+export const saveThemePreference = async (userId: string, theme: UserSettings['theme']) => {
+  await setDoc(
+    userSettingsRef(userId),
+    {
+      theme,
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true },
+  )
+}
+
+const connectionPatch = (provider: CalendarProvider, connection: CalendarConnection) => ({
+  [`calendarConnections.${provider}`]: connection,
+  updatedAt: new Date().toISOString(),
+})
+
+export const startCalendarConnection = async (userId: string, provider: CalendarProvider) => {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CALENDAR_CLIENT_ID
+  const now = new Date().toISOString()
+  const connection: CalendarConnection =
+    provider === 'google' && googleClientId
+      ? {
+          enabled: true,
+          status: 'ready_for_oauth',
+          lastSyncAt: null,
+          error: null,
+        }
+      : {
+          enabled: true,
+          status: 'needs_configuration',
+          lastSyncAt: null,
+          error:
+            provider === 'google'
+              ? 'Configura VITE_GOOGLE_CALENDAR_CLIENT_ID e un flusso OAuth autorizzato.'
+              : 'Apple Calendar richiede un backend sicuro CalDAV o Cloud Functions; nessuna credenziale iCloud viene salvata nel browser.',
+        }
+
+  await setDoc(userSettingsRef(userId), connectionPatch(provider, { ...connection, lastSyncAt: now }), {
+    merge: true,
+  })
+
+  return connection
+}
+
+export const disconnectCalendar = async (userId: string, provider: CalendarProvider) => {
+  await setDoc(
+    userSettingsRef(userId),
+    connectionPatch(provider, {
+      enabled: false,
+      status: 'disconnected',
+      error: null,
+      lastSyncAt: null,
+    }),
+    { merge: true },
+  )
+}
