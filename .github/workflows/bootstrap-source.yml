@@ -12,8 +12,8 @@ permissions:
   id-token: write
 
 env:
-  SOURCE_URL: https://tmpfiles.org/dl/wfwngl7sWAKi/radinx-organiser-source.zip
-  SOURCE_SHA256: c42c6dc5d2191ac2a8572b62246d9fcb4395394a0f0cc4432371f2e2c3e785c2
+  SOURCE_URL: https://tmpfiles.org/dl/wEw9gQ7lt7D4/radinx-organiser-source-clean.zip
+  SOURCE_SHA256: e36aa7be176ac5b9fd19ac79766a8819f5480647cd7b1404a899e4fb1f00e07b
   GITHUB_PAGES: "true"
   VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
   VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
@@ -40,10 +40,11 @@ jobs:
           curl -fsSL "$SOURCE_URL" -o source.tar.gz
           echo "$SOURCE_SHA256  source.tar.gz" | sha256sum -c -
 
-      - name: Extract source
+      - name: Extract clean source
         run: |
           tar -xzf source.tar.gz
           rm -f source.tar.gz
+          find . -name '._*' -delete
           rm -f .github/workflows/bootstrap-source.yml
 
       - name: Commit source to main
