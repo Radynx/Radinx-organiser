@@ -47,6 +47,26 @@ jobs:
         with:
           enablement: true
 
+      - name: Validate Firebase environment
+        run: |
+          missing=0
+          for name in \
+            VITE_FIREBASE_API_KEY \
+            VITE_FIREBASE_AUTH_DOMAIN \
+            VITE_FIREBASE_PROJECT_ID \
+            VITE_FIREBASE_STORAGE_BUCKET \
+            VITE_FIREBASE_MESSAGING_SENDER_ID \
+            VITE_FIREBASE_APP_ID
+          do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing Firebase environment::$name is empty. Add it in GitHub Settings > Secrets and variables > Actions as a Variable or Secret."
+              missing=1
+            else
+              echo "::notice title=Firebase environment::$name is configured."
+            fi
+          done
+          exit "$missing"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
