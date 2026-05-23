@@ -72,7 +72,7 @@ const upsertProfile = async (firebaseUser: User, displayName?: string) => {
     displayName: displayName ?? firebaseUser.displayName ?? 'Utente Radinx',
     email: firebaseUser.email ?? '',
     photoURL: firebaseUser.photoURL ?? null,
-    createdAt: now,
+    createdAt: firebaseUser.metadata?.creationTime ?? now,
     updatedAt: now,
   }
 
@@ -111,7 +111,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const { auth: firebaseAuth } = assertFirebase()
-    await signInWithEmailAndPassword(firebaseAuth, normalizeEmail(email), password)
+    const credentials = await signInWithEmailAndPassword(firebaseAuth, normalizeEmail(email), password)
+    await upsertProfile(credentials.user)
   }, [])
 
   const logout = useCallback(async () => {
