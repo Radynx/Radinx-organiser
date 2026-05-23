@@ -8,9 +8,8 @@ const firebaseMessages: Record<string, string> = {
   'auth/user-not-found': 'Nessun account trovato con questa email.',
   'auth/weak-password': 'La password deve essere più sicura.',
   'auth/requires-recent-login': 'Per sicurezza devi effettuare di nuovo il login.',
-  'storage/unauthorized': 'Non hai i permessi per modificare questa foto.',
   'permission-denied':
-    'Permessi insufficienti su Firebase. Verifica che Firestore e Storage abbiano le regole del repository pubblicate.',
+    'Permessi insufficienti su Firebase. Verifica che Firestore abbia le regole del repository pubblicate.',
   unavailable: 'Servizio temporaneamente non disponibile.',
 }
 

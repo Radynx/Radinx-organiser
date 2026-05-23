@@ -279,7 +279,7 @@ export function SettingsPage() {
             <header className="panel-header">
               <div>
                 <h2>Profilo</h2>
-                <p>Nome, email e foto.</p>
+                <p>Nome, email e avatar salvato su Firestore.</p>
               </div>
               <Camera size={20} aria-hidden="true" />
             </header>
@@ -290,7 +290,7 @@ export function SettingsPage() {
               <div className="photo-actions">
                 <label className="button button-secondary button-sm">
                   <Upload size={16} aria-hidden="true" />
-                  <span>{uploadingPhoto ? 'Carico...' : 'Upload foto'}</span>
+                  <span>{uploadingPhoto ? 'Salvo...' : 'Aggiorna avatar'}</span>
                   <input
                     accept="image/jpeg,image/png,image/webp"
                     hidden
@@ -425,7 +425,7 @@ export function SettingsPage() {
           <p>
             {calendarWizard === 'google'
               ? 'Google Calendar richiede client OAuth e autorizzazioni configurate nel progetto Google Cloud.'
-              : 'Apple Calendar richiede un backend sicuro per CalDAV o Cloud Functions; le credenziali iCloud non devono essere salvate nel browser.'}
+              : 'Apple Calendar richiede un backend sicuro per CalDAV; le credenziali iCloud non devono essere salvate nel browser.'}
           </p>
         </div>
         <footer className="modal-actions">

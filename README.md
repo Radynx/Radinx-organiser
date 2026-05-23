@@ -1,6 +1,6 @@
 # Radinx Organiser
 
-Radinx Organiser è una web app per organizzare vita quotidiana, calendario personale, task lavorative e storico delle attività completate. Il progetto è costruito come SPA React con Firebase per autenticazione, Firestore, Storage e persistenza per singolo utente.
+Radinx Organiser è una web app per organizzare vita quotidiana, calendario personale, task lavorative e storico delle attività completate. Il progetto è costruito come SPA React con Firebase per autenticazione, Firestore e persistenza per singolo utente, senza Firebase Storage obbligatorio.
 
 ## Funzionalità
 
@@ -9,7 +9,7 @@ Radinx Organiser è una web app per organizzare vita quotidiana, calendario pers
 - Task lavorative con stato, priorità, scadenza opzionale, note, modifica, eliminazione e completamento.
 - Sezione “Cose fatte” con data/ora creazione, data/ora completamento, tempo trascorso e filtri.
 - Autenticazione Firebase con registrazione, login, logout e recupero password.
-- Impostazioni profilo, cambio email con verifica, cambio password e foto profilo su Firebase Storage.
+- Impostazioni profilo, cambio email con verifica, cambio password e avatar compresso salvato su Firestore.
 - Personalizzazione colori calendario con salvataggio su Firestore.
 - Connessioni Google Calendar e Apple Calendar predisposte solo con consenso manuale.
 - UI responsive, dark mode, toast, modali, empty state, loading state e fallback d’errore.
@@ -19,7 +19,7 @@ Radinx Organiser è una web app per organizzare vita quotidiana, calendario pers
 - React + TypeScript
 - Vite
 - React Router
-- Firebase Auth, Firestore, Storage
+- Firebase Auth e Firestore
 - React Hook Form + Zod
 - date-fns
 - lucide-react
@@ -49,7 +49,7 @@ src/
 
 - Node.js 22 o superiore
 - pnpm
-- Progetto Firebase con Auth, Firestore e Storage abilitati
+- Progetto Firebase con Auth e Firestore abilitati
 
 ## Installazione
 
@@ -64,7 +64,6 @@ Compila `.env` con i valori del tuo progetto Firebase.
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 VITE_GOOGLE_CALENDAR_CLIENT_ID=
@@ -76,7 +75,7 @@ Per GitHub Pages aggiungi gli stessi nomi come repository variables in:
 Settings > Secrets and variables > Actions > Variables
 ```
 
-La configurazione client Firebase non è una secret server-side; è normale che venga inclusa nel bundle frontend. Le regole Firestore e Storage proteggono i dati reali.
+La configurazione client Firebase non è una secret server-side; è normale che venga inclusa nel bundle frontend. Le regole Firestore proteggono i dati reali.
 
 ## Avvio
 
@@ -104,7 +103,7 @@ pnpm lint
 pnpm test
 ```
 
-La suite copre validazioni auth, registrazione, login, logout, reset password, upload foto, route protette, creazione/modifica/eliminazione eventi, creazione/completamento task, impostazioni colori e flag calendari.
+La suite copre validazioni auth, registrazione, login, logout, reset password, avatar profilo, route protette, creazione/modifica/eliminazione eventi, creazione/completamento task, impostazioni colori e flag calendari.
 
 ## Firebase
 
@@ -132,19 +131,15 @@ Deploy regole e indici:
 firebase deploy --only firestore
 ```
 
-### Storage
+### Avatar profilo senza Storage
 
-Le foto profilo sono salvate in:
+Per mantenere il progetto sul piano gratuito, l'app non usa Firebase Storage. L'immagine profilo viene validata, ridimensionata nel browser e salvata come piccolo data URL nel documento:
 
 ```text
-users/{userId}/profile/avatar
+users/{userId}
 ```
 
-Sono ammessi JPG, PNG e WebP sotto 3 MB. Le regole sono in `storage.rules`.
-
-```bash
-firebase deploy --only storage
-```
+Sono ammessi JPG, PNG e WebP sotto 3 MB; prima del salvataggio l'avatar viene compresso a dimensione ridotta per restare entro i limiti di Firestore.
 
 ## Google Calendar
 
@@ -161,7 +156,7 @@ Senza configurazione OAuth, l’app salva lo stato “Da configurare” e non ef
 
 ## Apple Calendar
 
-Apple Calendar non offre un flusso browser equivalente a Google OAuth per CalDAV personale. Per una sync reale serve un backend sicuro, ad esempio Firebase Cloud Functions, che gestisca CalDAV e credenziali/app-specific password fuori dal client.
+Apple Calendar non offre un flusso browser equivalente a Google OAuth per CalDAV personale. Per una sync reale serve un backend sicuro che gestisca CalDAV e credenziali/app-specific password fuori dal client. Questa parte resta predisposta ma non viene attivata automaticamente.
 
 L’app espone già flag manuale, stato, messaggi d’errore e disconnessione. Se il flag è disattivato non vengono eseguite chiamate, letture o scritture esterne.
 
@@ -190,12 +185,12 @@ firebase deploy --only hosting
 - Nessuna sincronizzazione calendario esterna è automatica.
 - Input validati con Zod e sanitizzazione lato client.
 - Route private protette da auth guard.
-- Firestore e Storage rules limitano ogni utente ai propri dati.
+- Le Firestore rules limitano ogni utente ai propri dati.
 - Operazioni distruttive usano modali di conferma.
 
 ## Roadmap futura
 
-- Sync Google Calendar completa tramite OAuth e Cloud Functions.
+- Sync Google Calendar completa tramite OAuth e backend sicuro opzionale.
 - Sync Apple Calendar tramite backend CalDAV.
 - Notifiche push opzionali.
 - Export CSV/ICS.

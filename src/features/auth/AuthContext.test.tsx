@@ -7,10 +7,10 @@ import {
   updatePassword,
   updateProfile,
 } from 'firebase/auth'
-import { setDoc } from 'firebase/firestore'
-import { getDownloadURL, uploadBytes } from 'firebase/storage'
+import { onSnapshot, setDoc } from 'firebase/firestore'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
+import { profilePhotoFileToDataUrl } from '@/utils/file'
 
 const { fakeAuth, fakeUser } = vi.hoisted(() => {
   const user = {
@@ -43,25 +43,23 @@ vi.mock('firebase/auth', () => ({
 }))
 
 vi.mock('firebase/firestore', () => ({
+  onSnapshot: vi.fn(() => vi.fn()),
   setDoc: vi.fn(),
-}))
-
-vi.mock('firebase/storage', () => ({
-  deleteObject: vi.fn(),
-  getDownloadURL: vi.fn(),
-  ref: vi.fn((_storage, path) => ({ path })),
-  uploadBytes: vi.fn(),
 }))
 
 vi.mock('@/lib/firebase', () => ({
   auth: fakeAuth,
-  assertFirebase: vi.fn(() => ({ auth: fakeAuth, db: {}, storage: {} })),
+  assertFirebase: vi.fn(() => ({ auth: fakeAuth, db: {} })),
   isFirebaseConfigured: true,
 }))
 
 vi.mock('@/lib/firestorePaths', () => ({
   userDocRef: vi.fn((userId: string) => ({ path: `users/${userId}` })),
   userSettingsRef: vi.fn((userId: string) => ({ path: `users/${userId}/settings/preferences` })),
+}))
+
+vi.mock('@/utils/file', () => ({
+  profilePhotoFileToDataUrl: vi.fn(),
 }))
 
 function renderAuthProbe() {
@@ -92,9 +90,9 @@ describe('AuthContext', () => {
     vi.mocked(signOut).mockResolvedValue(undefined)
     vi.mocked(updatePassword).mockResolvedValue(undefined)
     vi.mocked(updateProfile).mockResolvedValue(undefined)
-    vi.mocked(uploadBytes).mockResolvedValue({} as never)
-    vi.mocked(getDownloadURL).mockResolvedValue('https://cdn.example.com/avatar.png')
+    vi.mocked(profilePhotoFileToDataUrl).mockResolvedValue('data:image/webp;base64,avatar')
     vi.mocked(setDoc).mockResolvedValue(undefined)
+    vi.mocked(onSnapshot).mockReturnValue(vi.fn())
   })
 
   afterEach(() => {
@@ -143,7 +141,7 @@ describe('AuthContext', () => {
     expect(signOut).toHaveBeenCalledWith(fakeAuth)
   })
 
-  it('cambia password e carica foto profilo validata', async () => {
+  it('cambia password e salva avatar profilo gratuito in Firestore', async () => {
     const getAuthApi = renderAuthProbe()
     const authApi = await getAuthApi()
     const file = new File(['avatar'], 'avatar.png', { type: 'image/png' })
@@ -154,9 +152,13 @@ describe('AuthContext', () => {
     })
 
     expect(updatePassword).toHaveBeenCalledWith(fakeUser, 'Password1')
-    expect(uploadBytes).toHaveBeenCalled()
-    expect(updateProfile).toHaveBeenCalledWith(fakeUser, {
-      photoURL: 'https://cdn.example.com/avatar.png',
-    })
+    expect(profilePhotoFileToDataUrl).toHaveBeenCalledWith(file)
+    expect(setDoc).toHaveBeenCalledWith(
+      { path: 'users/user-1' },
+      expect.objectContaining({
+        photoURL: 'data:image/webp;base64,avatar',
+      }),
+      { merge: true },
+    )
   })
 })

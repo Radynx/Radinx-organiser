@@ -18,14 +18,13 @@ import {
   verifyBeforeUpdateEmail,
   type User,
 } from 'firebase/auth'
-import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage'
-import { setDoc } from 'firebase/firestore'
+import { onSnapshot, setDoc } from 'firebase/firestore'
 import { auth, assertFirebase, isFirebaseConfigured } from '@/lib/firebase'
 import { userDocRef, userSettingsRef } from '@/lib/firestorePaths'
 import { defaultSettings } from '@/features/settings/defaultSettings'
 import type { AuthUser, UserProfile } from '@/types/domain'
 import { normalizeEmail, sanitizeText } from '@/utils/sanitize'
-import { validateProfilePhoto } from '@/utils/file'
+import { profilePhotoFileToDataUrl } from '@/utils/file'
 
 interface AuthContextValue {
   user: AuthUser | null
@@ -50,11 +49,19 @@ interface RegisterInput {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
-const toAuthUser = (firebaseUser: User): AuthUser => ({
+const resolvePhotoURL = (firebaseUser: User, profile?: Partial<UserProfile>) => {
+  if (profile && 'photoURL' in profile) {
+    return profile.photoURL ?? undefined
+  }
+
+  return firebaseUser.photoURL ?? undefined
+}
+
+const toAuthUser = (firebaseUser: User, profile?: Partial<UserProfile>): AuthUser => ({
   uid: firebaseUser.uid,
-  email: firebaseUser.email ?? '',
-  displayName: firebaseUser.displayName ?? 'Utente Radinx',
-  photoURL: firebaseUser.photoURL ?? undefined,
+  email: profile?.email ?? firebaseUser.email ?? '',
+  displayName: profile?.displayName ?? firebaseUser.displayName ?? 'Utente Radinx',
+  photoURL: resolvePhotoURL(firebaseUser, profile),
 })
 
 const ensureCurrentUser = (currentUser: User | null) => {
@@ -65,15 +72,18 @@ const ensureCurrentUser = (currentUser: User | null) => {
   return currentUser
 }
 
-const upsertProfile = async (firebaseUser: User, displayName?: string) => {
+const upsertProfile = async (firebaseUser: User, displayName?: string, photoURL?: string | null) => {
   const now = new Date().toISOString()
-  const profile: UserProfile = {
+  const profile: Omit<UserProfile, 'photoURL'> & { photoURL?: string | null } = {
     uid: firebaseUser.uid,
     displayName: displayName ?? firebaseUser.displayName ?? 'Utente Radinx',
     email: firebaseUser.email ?? '',
-    photoURL: firebaseUser.photoURL ?? null,
     createdAt: firebaseUser.metadata?.creationTime ?? now,
     updatedAt: now,
+  }
+
+  if (photoURL !== undefined) {
+    profile.photoURL = photoURL
   }
 
   await setDoc(userDocRef(firebaseUser.uid), profile, { merge: true })
@@ -96,6 +106,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  useEffect(() => {
+    if (!auth || !user?.uid) {
+      return undefined
+    }
+
+    const currentUser = auth.currentUser
+
+    if (!currentUser) {
+      return undefined
+    }
+
+    return onSnapshot(
+      userDocRef(user.uid),
+      (snapshot) => {
+        const profile = snapshot.exists() ? (snapshot.data() as Partial<UserProfile>) : undefined
+        setUser(toAuthUser(currentUser, profile))
+      },
+      () => undefined,
+    )
+  }, [user?.uid])
+
   const register = useCallback(async ({ email, password, displayName }: RegisterInput) => {
     const { auth: firebaseAuth } = assertFirebase()
     const cleanName = sanitizeText(displayName, 80)
@@ -106,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
 
     await updateProfile(credentials.user, { displayName: cleanName })
-    await upsertProfile(credentials.user, cleanName)
+    await upsertProfile(credentials.user, cleanName, null)
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
@@ -139,9 +170,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       uid: currentUser.uid,
       email: currentUser.email ?? '',
       displayName: cleanName,
-      photoURL: currentUser.photoURL ?? undefined,
+      photoURL: user?.photoURL,
     })
-  }, [])
+  }, [user?.photoURL])
 
   const updateAccountEmail = useCallback(async (email: string) => {
     const { auth: firebaseAuth } = assertFirebase()
@@ -162,13 +193,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const uploadProfilePhoto = useCallback(async (file: File) => {
-    validateProfilePhoto(file)
-    const { auth: firebaseAuth, storage } = assertFirebase()
+    const photoURL = await profilePhotoFileToDataUrl(file)
+    const { auth: firebaseAuth } = assertFirebase()
     const currentUser = ensureCurrentUser(firebaseAuth.currentUser)
-    const photoRef = ref(storage, `users/${currentUser.uid}/profile/avatar`)
-    await uploadBytes(photoRef, file, { contentType: file.type })
-    const photoURL = await getDownloadURL(photoRef)
-    await updateProfile(currentUser, { photoURL })
     await setDoc(
       userDocRef(currentUser.uid),
       { photoURL, updatedAt: new Date().toISOString() },
@@ -183,10 +210,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const deleteProfilePhoto = useCallback(async () => {
-    const { auth: firebaseAuth, storage } = assertFirebase()
+    const { auth: firebaseAuth } = assertFirebase()
     const currentUser = ensureCurrentUser(firebaseAuth.currentUser)
-    const photoRef = ref(storage, `users/${currentUser.uid}/profile/avatar`)
-    await deleteObject(photoRef).catch(() => undefined)
     await updateProfile(currentUser, { photoURL: null })
     await setDoc(
       userDocRef(currentUser.uid),
