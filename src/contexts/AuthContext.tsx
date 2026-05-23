@@ -71,7 +71,7 @@ const upsertProfile = async (firebaseUser: User, displayName?: string) => {
     uid: firebaseUser.uid,
     displayName: displayName ?? firebaseUser.displayName ?? 'Utente Radinx',
     email: firebaseUser.email ?? '',
-    photoURL: firebaseUser.photoURL ?? undefined,
+    photoURL: firebaseUser.photoURL ?? null,
     createdAt: now,
     updatedAt: now,
   }
