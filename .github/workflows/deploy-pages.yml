@@ -6,7 +6,7 @@ on:
       - main
   workflow_dispatch:
 
-# Manual deploy trigger after stability fixes: 2026-05-23
+# Manual deploy trigger after free Firebase mode: 2026-05-23
 permissions:
   contents: read
   pages: write
