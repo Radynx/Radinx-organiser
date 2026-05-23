@@ -116,6 +116,16 @@ describe('AuthContext', () => {
     expect(createUserWithEmailAndPassword).toHaveBeenCalledWith(fakeAuth, 'new@example.com', 'Password1')
     expect(updateProfile).toHaveBeenCalledWith(fakeUser, { displayName: 'New User' })
     expect(setDoc).toHaveBeenCalledTimes(2)
+    expect(setDoc).toHaveBeenCalledWith(
+      { path: 'users/user-1' },
+      expect.objectContaining({
+        displayName: 'New User',
+        email: 'person@example.com',
+        photoURL: null,
+        uid: 'user-1',
+      }),
+      { merge: true },
+    )
   })
 
   it('gestisce login, logout e reset password', async () => {
