@@ -28,7 +28,11 @@ jobs:
           rm -rf /tmp/radinx-organiser-free-mode
           mkdir -p /tmp/radinx-organiser-free-mode
           unzip -q /tmp/radinx-organiser-free-mode.zip -d /tmp/radinx-organiser-free-mode
-          rsync -a --delete --exclude '.git' /tmp/radinx-organiser-free-mode/ ./
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.github/workflows/deploy-pages.yml' \
+            --exclude '.github/workflows/apply-free-mode.yml' \
+            /tmp/radinx-organiser-free-mode/ ./
           rm -f .github/workflows/apply-free-mode.yml
 
       - name: Commit and push
