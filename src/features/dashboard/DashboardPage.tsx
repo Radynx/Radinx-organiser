@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { CalendarPlus, CheckCircle2, Clock3, PlugZap, SquareKanban } from 'lucide-react'
-import { isAfter, parseISO } from 'date-fns'
+import { isAfter, isValid, parseISO } from 'date-fns'
 import { Badge } from '@/components/Badge'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHeader } from '@/components/PageHeader'
@@ -21,19 +21,27 @@ import {
 export function DashboardPage() {
   const { user } = useAuth()
   const userId = user?.uid
-  const { events, loading: eventsLoading } = useEvents(userId)
-  const { tasks, loading: tasksLoading } = useTasks(userId)
-  const { completedTasks, loading: completedLoading } = useCompletedTasks(userId)
-  const { settings } = useSettings(userId)
+  const { events, error: eventsError, loading: eventsLoading } = useEvents(userId)
+  const { tasks, error: tasksError, loading: tasksLoading } = useTasks(userId)
+  const {
+    completedTasks,
+    error: completedError,
+    loading: completedLoading,
+  } = useCompletedTasks(userId)
+  const { error: settingsError, settings } = useSettings(userId)
   const today = todayISODate()
   const now = new Date()
+  const dataErrors = [eventsError, tasksError, completedError, settingsError].filter(Boolean)
 
   const todayEvents = events
     .filter((event) => event.date === today)
     .sort((a, b) => a.startTime.localeCompare(b.startTime))
 
   const nextEvents = events
-    .filter((event) => isAfter(parseISO(combineDateAndTime(event.date, event.startTime)), now))
+    .filter((event) => {
+      const startsAt = parseISO(combineDateAndTime(event.date, event.startTime))
+      return isValid(startsAt) && isAfter(startsAt, now)
+    })
     .slice(0, 5)
 
   const openWorkTasks = tasks.filter((task) => task.status !== 'completed').slice(0, 5)
@@ -80,6 +88,12 @@ export function DashboardPage() {
           <p>Connessioni attivate manualmente</p>
         </article>
       </section>
+
+      {dataErrors.length ? (
+        <div className="inline-error" role="alert">
+          Alcuni dati non sono stati caricati. {dataErrors.join(' ')}
+        </div>
+      ) : null}
 
       <section className="dashboard-grid">
         <article className="panel">

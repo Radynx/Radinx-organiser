@@ -1,4 +1,12 @@
-import { endOfWeek, isSameDay, isSameMonth, isWithinInterval, parseISO, startOfWeek } from 'date-fns'
+import {
+  endOfWeek,
+  isSameDay,
+  isSameMonth,
+  isValid,
+  isWithinInterval,
+  parseISO,
+  startOfWeek,
+} from 'date-fns'
 import { RotateCcw, Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Badge } from '@/components/Badge'
@@ -37,9 +45,11 @@ export function CompletedPage() {
   const filteredTasks = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase()
     const reference = parseISO(referenceDate)
+    if (!isValid(reference)) return []
 
     return completedTasks.filter((task) => {
       const completedAt = parseISO(task.completedAt)
+      if (!isValid(completedAt)) return false
       const matchesPeriod =
         period === 'all' ||
         (period === 'day' && isSameDay(completedAt, reference)) ||

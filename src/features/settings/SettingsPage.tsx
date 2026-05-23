@@ -45,7 +45,7 @@ export function SettingsPage() {
   } = useAuth()
   const userId = user?.uid
   const { notify } = useToast()
-  const { loading, settings } = useSettings(userId)
+  const { error, loading, settings } = useSettings(userId)
   const [savingColors, setSavingColors] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
@@ -218,6 +218,8 @@ export function SettingsPage() {
         title="Impostazioni"
         description="Preferenze, profilo, sicurezza e connessioni calendario."
       />
+
+      {error ? <div className="inline-error" role="alert">{error}</div> : null}
 
       {loading ? (
         <section className="panel">

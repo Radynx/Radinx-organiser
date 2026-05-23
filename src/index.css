@@ -202,12 +202,102 @@ code {
   color: var(--text);
 }
 
-.sidebar-user {
-  gap: 0.75rem;
+.sidebar-user-menu {
+  position: relative;
   margin-top: auto;
-  min-width: 0;
   border-top: 1px solid var(--border);
   padding-top: 1rem;
+}
+
+.sidebar-user {
+  width: 100%;
+  gap: 0.75rem;
+  min-width: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  padding: 0.5rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sidebar-user:hover,
+.sidebar-user:focus-visible {
+  background: var(--surface-strong);
+  outline: none;
+}
+
+.sidebar-user svg {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.profile-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.5rem);
+  z-index: 50;
+  display: grid;
+  width: min(240px, 100%);
+  gap: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.35rem;
+  box-shadow: var(--shadow);
+}
+
+.profile-menu a,
+.profile-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 40px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-menu a:hover,
+.profile-menu button:hover,
+.profile-menu a:focus-visible,
+.profile-menu button:focus-visible {
+  background: var(--surface-strong);
+  outline: none;
+}
+
+.profile-menu button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.profile-summary {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.profile-summary dl {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.profile-summary dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.profile-summary dd {
+  margin: 0.15rem 0 0;
+  overflow-wrap: anywhere;
 }
 
 .sidebar-user div:last-child,
@@ -222,6 +312,7 @@ code {
 
 .sidebar-user strong,
 .sidebar-user span,
+.profile-menu span,
 .topbar-title strong,
 .topbar-title span,
 .compact-row strong,

@@ -3,8 +3,6 @@ import {
   addMonths,
   addWeeks,
   format,
-  isSameDay,
-  parseISO,
   subMonths,
   subWeeks,
 } from 'date-fns'
@@ -37,6 +35,7 @@ import {
   formatDate,
   getMonthGridDays,
   getWeekDays,
+  isISODateInSameDay,
   isISODateInSameMonth,
   toISODate,
   todayISODate,
@@ -69,8 +68,8 @@ export function CalendarPage() {
   const { user } = useAuth()
   const { notify } = useToast()
   const userId = user?.uid
-  const { events, loading } = useEvents(userId)
-  const { settings } = useSettings(userId)
+  const { error, events, loading } = useEvents(userId)
+  const { error: settingsError, settings } = useSettings(userId)
   const [view, setView] = useState<CalendarView>('week')
   const [cursorDate, setCursorDate] = useState(new Date())
   const [modalOpen, setModalOpen] = useState(false)
@@ -247,6 +246,12 @@ export function CalendarPage() {
         </select>
       </section>
 
+      {error || settingsError ? (
+        <div className="inline-error" role="alert">
+          {error ?? settingsError}
+        </div>
+      ) : null}
+
       {loading ? (
         <section className="panel">
           <Skeleton lines={8} />
@@ -375,7 +380,7 @@ interface CalendarViewProps {
 }
 
 function DayView({ colors, date, events, onCreate, onDelete, onEdit }: CalendarViewProps & { date: Date }) {
-  const dayEvents = events.filter((event) => isSameDay(parseISO(event.date), date))
+  const dayEvents = events.filter((event) => isISODateInSameDay(event.date, date))
 
   return (
     <section className="panel">

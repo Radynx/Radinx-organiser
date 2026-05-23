@@ -6,6 +6,7 @@ import {
   format,
   isSameDay,
   isSameMonth,
+  isValid,
   parseISO,
   startOfMonth,
   startOfWeek,
@@ -14,20 +15,36 @@ import { it } from 'date-fns/locale'
 
 export const todayISODate = () => format(new Date(), 'yyyy-MM-dd')
 
-export const formatDate = (isoDate: string) =>
-  format(parseISO(isoDate), 'd MMMM yyyy', { locale: it })
+const safeParseISO = (value: string) => {
+  const parsed = parseISO(value)
+  return isValid(parsed) ? parsed : null
+}
 
-export const formatShortDate = (isoDate: string) =>
-  format(parseISO(isoDate), 'dd/MM/yyyy', { locale: it })
+export const formatDate = (isoDate: string) => {
+  const parsed = safeParseISO(isoDate)
+  return parsed ? format(parsed, 'd MMMM yyyy', { locale: it }) : 'Data non valida'
+}
 
-export const formatDateTime = (isoDateTime: string) =>
-  format(parseISO(isoDateTime), 'dd/MM/yyyy HH:mm', { locale: it })
+export const formatShortDate = (isoDate: string) => {
+  const parsed = safeParseISO(isoDate)
+  return parsed ? format(parsed, 'dd/MM/yyyy', { locale: it }) : 'Data non valida'
+}
 
-export const formatTime = (isoDateTime: string) =>
-  format(parseISO(isoDateTime), 'HH:mm', { locale: it })
+export const formatDateTime = (isoDateTime: string) => {
+  const parsed = safeParseISO(isoDateTime)
+  return parsed ? format(parsed, 'dd/MM/yyyy HH:mm', { locale: it }) : 'Data non valida'
+}
+
+export const formatTime = (isoDateTime: string) => {
+  const parsed = safeParseISO(isoDateTime)
+  return parsed ? format(parsed, 'HH:mm', { locale: it }) : '--:--'
+}
 
 export const elapsedLabel = (startISO: string, endISO: string) => {
-  const minutes = Math.max(0, differenceInMinutes(parseISO(endISO), parseISO(startISO)))
+  const start = safeParseISO(startISO)
+  const end = safeParseISO(endISO)
+  if (!start || !end) return 'Non disponibile'
+  const minutes = Math.max(0, differenceInMinutes(end, start))
   if (minutes < 60) return `${minutes} min`
   const hours = Math.floor(minutes / 60)
   const rest = minutes % 60
@@ -58,10 +75,14 @@ export const getMonthGridDays = (date: Date) => {
 
 export const toISODate = (date: Date) => format(date, 'yyyy-MM-dd')
 
-export const isISODateInSameDay = (isoDate: string, date: Date) =>
-  isSameDay(parseISO(isoDate), date)
+export const isISODateInSameDay = (isoDate: string, date: Date) => {
+  const parsed = safeParseISO(isoDate)
+  return parsed ? isSameDay(parsed, date) : false
+}
 
-export const isISODateInSameMonth = (isoDate: string, date: Date) =>
-  isSameMonth(parseISO(isoDate), date)
+export const isISODateInSameMonth = (isoDate: string, date: Date) => {
+  const parsed = safeParseISO(isoDate)
+  return parsed ? isSameMonth(parsed, date) : false
+}
 
 export const combineDateAndTime = (date: string, time: string) => `${date}T${time}:00`
