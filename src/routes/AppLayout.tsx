@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   CalendarDays,
   ChevronDown,
+  ChevronsLeft,
+  ChevronsRight,
   CheckCircle2,
   LayoutDashboard,
   LogOut,
@@ -34,11 +36,23 @@ export function AppLayout() {
   const { notify } = useToast()
   const { settings } = useSettings(user?.uid)
   const navigate = useNavigate()
+  const location = useLocation()
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [profileModalOpen, setProfileModalOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+
+  useEffect(() => {
+    const storedPreference = window.localStorage.getItem('radinx-sidebar-collapsed')
+    setSidebarCollapsed(storedPreference === 'true')
+  }, [])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 })
+    setSidebarOpen(false)
+  }, [location.pathname])
 
   useEffect(() => {
     document.documentElement.dataset.theme = settings.theme
@@ -86,8 +100,17 @@ export function AppLayout() {
     }
   }
 
+  const toggleSidebarCollapsed = () => {
+    setSidebarCollapsed((current) => {
+      const next = !current
+      window.localStorage.setItem('radinx-sidebar-collapsed', String(next))
+      return next
+    })
+    setProfileMenuOpen(false)
+  }
+
   return (
-    <div className="app-shell">
+    <div className={clsx('app-shell', sidebarCollapsed && 'sidebar-collapsed')}>
       <aside className={clsx('sidebar', sidebarOpen && 'sidebar-open')}>
         <div className="sidebar-brand">
           <ShieldCheck size={24} aria-hidden="true" />
@@ -103,6 +126,18 @@ export function AppLayout() {
           >
             <X size={18} aria-hidden="true" />
           </button>
+          <button
+            aria-label={sidebarCollapsed ? 'Espandi menu' : 'Minimizza menu'}
+            className="icon-button sidebar-collapse"
+            type="button"
+            onClick={toggleSidebarCollapsed}
+          >
+            {sidebarCollapsed ? (
+              <ChevronsRight size={18} aria-hidden="true" />
+            ) : (
+              <ChevronsLeft size={18} aria-hidden="true" />
+            )}
+          </button>
         </div>
         <nav className="sidebar-nav" aria-label="Navigazione principale">
           {navItems.map((item) => {
@@ -112,6 +147,7 @@ export function AppLayout() {
                 end={item.to === '/'}
                 key={item.to}
                 to={item.to}
+                title={sidebarCollapsed ? item.label : undefined}
                 onClick={() => setSidebarOpen(false)}
               >
                 <Icon size={18} aria-hidden="true" />

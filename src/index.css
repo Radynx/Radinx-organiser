@@ -112,6 +112,10 @@ code {
   min-height: 100svh;
 }
 
+.app-shell.sidebar-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -125,6 +129,11 @@ code {
   padding: 1rem;
   overflow: hidden;
   z-index: 30;
+}
+
+.sidebar-collapsed .sidebar {
+  width: 76px;
+  padding: 0.8rem;
 }
 
 .sidebar-brand,
@@ -180,6 +189,10 @@ code {
   display: none;
 }
 
+.sidebar-collapse {
+  margin-left: auto;
+}
+
 .sidebar-nav {
   display: grid;
   gap: 0.35rem;
@@ -204,11 +217,35 @@ code {
   color: var(--text);
 }
 
+.sidebar-collapsed .sidebar-brand {
+  justify-content: center;
+}
+
+.sidebar-collapsed .sidebar-brand div,
+.sidebar-collapsed .sidebar-nav a span,
+.sidebar-collapsed .sidebar-user strong,
+.sidebar-collapsed .sidebar-user svg {
+  display: none;
+}
+
+.sidebar-collapsed .sidebar-collapse {
+  margin-left: 0;
+}
+
+.sidebar-collapsed .sidebar-nav a {
+  justify-content: center;
+  padding-inline: 0;
+}
+
 .sidebar-user-menu {
   position: relative;
   margin-top: auto;
   border-top: 1px solid var(--border);
   padding-top: 1rem;
+}
+
+.sidebar-collapsed .sidebar-user-menu {
+  padding-top: 0.75rem;
 }
 
 .sidebar-user {
@@ -224,6 +261,11 @@ code {
   text-align: left;
   cursor: pointer;
   transition: background 0.2s ease;
+}
+
+.sidebar-collapsed .sidebar-user {
+  justify-content: center;
+  padding: 0.35rem 0;
 }
 
 .sidebar-user:hover,
@@ -359,6 +401,7 @@ code {
 .main-shell {
   min-width: 0;
   width: 100%;
+  min-height: 100svh;
   overflow-x: hidden;
 }
 
@@ -385,6 +428,7 @@ code {
   max-width: 1440px;
   margin: 0;
   padding: 1rem;
+  min-height: calc(100svh - 60px);
 }
 
 .page-flow {
@@ -1274,16 +1318,19 @@ code {
 }
 
 @media (max-width: 720px) {
-  .app-shell {
+  .app-shell,
+  .app-shell.sidebar-collapsed {
     grid-template-columns: 1fr;
   }
 
-  .sidebar {
+  .sidebar,
+  .sidebar-collapsed .sidebar {
     position: fixed;
     left: 0;
     transform: translateX(-105%);
     width: min(var(--sidebar-width), 86vw);
     max-width: 320px;
+    padding: 1rem;
     transition: transform 0.2s ease;
   }
 
@@ -1303,6 +1350,35 @@ code {
     display: inline-grid;
   }
 
+  .sidebar-collapse {
+    display: none;
+  }
+
+  .sidebar-collapsed .sidebar-brand {
+    justify-content: flex-start;
+  }
+
+  .sidebar-collapsed .sidebar-brand div,
+  .sidebar-collapsed .sidebar-nav a span,
+  .sidebar-collapsed .sidebar-user strong,
+  .sidebar-collapsed .sidebar-user svg {
+    display: initial;
+  }
+
+  .sidebar-collapsed .sidebar-brand div {
+    display: grid;
+  }
+
+  .sidebar-collapsed .sidebar-nav a {
+    justify-content: flex-start;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .sidebar-collapsed .sidebar-user {
+    justify-content: flex-start;
+    padding: 0.5rem;
+  }
+
   .sidebar-close {
     margin-left: auto;
   }
@@ -1314,6 +1390,7 @@ code {
 
   .content {
     padding: 0.85rem;
+    min-height: calc(100svh - 56px);
   }
 
   .page-header,
@@ -1367,6 +1444,7 @@ code {
 
   .content {
     padding: 0.65rem;
+    min-height: calc(100svh - 52px);
   }
 
   .panel,
