@@ -1,6 +1,6 @@
-# Radinx Organiser
+# Radynx Organizer
 
-Radinx Organiser è una web app per organizzare vita quotidiana, calendario personale, task lavorative e storico delle attività completate. Il progetto è costruito come SPA React con Firebase per autenticazione, Firestore e persistenza per singolo utente, senza Firebase Storage obbligatorio.
+Radynx Organizer è una web app per organizzare vita quotidiana, calendario personale, task lavorative e storico delle attività completate. Il progetto è costruito come SPA React con Firebase per autenticazione, Firestore e persistenza per singolo utente, senza Firebase Storage obbligatorio.
 
 ## Funzionalità
 

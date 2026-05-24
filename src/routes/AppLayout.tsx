@@ -110,8 +110,8 @@ export function AppLayout() {
         <div className="sidebar-brand">
           <ShieldCheck size={24} aria-hidden="true" />
           <div>
-            <strong>Radinx</strong>
-            <span>Organiser</span>
+            <strong>Radynx</strong>
+            <span>Organizer</span>
           </div>
           <button
             aria-label={sidebarCollapsed ? 'Espandi menu' : 'Minimizza menu'}
@@ -154,7 +154,7 @@ export function AppLayout() {
               {user?.photoURL ? <img src={user.photoURL} alt="" /> : user?.displayName.slice(0, 1)}
             </div>
             <div>
-              <strong>{user?.displayName ?? 'Utente Radinx'}</strong>
+              <strong>{user?.displayName ?? 'Utente Radynx'}</strong>
             </div>
             <ChevronDown size={16} aria-hidden="true" />
           </button>
@@ -187,7 +187,7 @@ export function AppLayout() {
       <div className="main-shell">
         <header className="topbar">
           <div className="topbar-title">
-            <strong>Radinx Organiser</strong>
+            <strong>Radynx Organizer</strong>
             <span>Workspace personale</span>
           </div>
           <Button

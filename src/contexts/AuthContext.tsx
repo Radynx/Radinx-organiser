@@ -60,7 +60,7 @@ const resolvePhotoURL = (firebaseUser: User, profile?: Partial<UserProfile>) => 
 const toAuthUser = (firebaseUser: User, profile?: Partial<UserProfile>): AuthUser => ({
   uid: firebaseUser.uid,
   email: profile?.email ?? firebaseUser.email ?? '',
-  displayName: profile?.displayName ?? firebaseUser.displayName ?? 'Utente Radinx',
+  displayName: profile?.displayName ?? firebaseUser.displayName ?? 'Utente Radynx',
   photoURL: resolvePhotoURL(firebaseUser, profile),
 })
 
@@ -76,7 +76,7 @@ const upsertProfile = async (firebaseUser: User, displayName?: string, photoURL?
   const now = new Date().toISOString()
   const profile: Omit<UserProfile, 'photoURL'> & { photoURL?: string | null } = {
     uid: firebaseUser.uid,
-    displayName: displayName ?? firebaseUser.displayName ?? 'Utente Radinx',
+    displayName: displayName ?? firebaseUser.displayName ?? 'Utente Radynx',
     email: firebaseUser.email ?? '',
     createdAt: firebaseUser.metadata?.creationTime ?? now,
     updatedAt: now,
@@ -204,7 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser({
       uid: currentUser.uid,
       email: currentUser.email ?? '',
-      displayName: currentUser.displayName ?? 'Utente Radinx',
+      displayName: currentUser.displayName ?? 'Utente Radynx',
       photoURL,
     })
   }, [])
@@ -221,7 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser({
       uid: currentUser.uid,
       email: currentUser.email ?? '',
-      displayName: currentUser.displayName ?? 'Utente Radinx',
+      displayName: currentUser.displayName ?? 'Utente Radynx',
       photoURL: undefined,
     })
   }, [])

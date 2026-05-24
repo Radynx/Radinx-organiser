@@ -51,7 +51,7 @@ export function DashboardPage() {
     <div className="page-flow">
       <PageHeader
         eyebrow="Oggi"
-        title={`Ciao, ${user?.displayName ?? 'Radinx'}`}
+        title={`Ciao, ${user?.displayName ?? 'Radynx'}`}
         description="La tua giornata, il lavoro aperto e le attività chiuse in un unico punto."
         action={
           <Link className="button button-primary button-md" to="/calendar">

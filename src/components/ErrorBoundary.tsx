@@ -14,7 +14,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBound
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('Radinx Organiser error boundary', error, info)
+    console.error('Radynx Organizer error boundary', error, info)
   }
 
   render() {

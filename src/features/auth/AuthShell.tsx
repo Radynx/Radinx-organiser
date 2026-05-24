@@ -13,10 +13,10 @@ export function AuthShell({
 }) {
   return (
     <main className="auth-screen">
-      <section className="auth-panel" aria-label="Accesso Radinx Organiser">
+      <section className="auth-panel" aria-label="Accesso Radynx Organizer">
         <div className="brand-mark">
           <CalendarCheck size={24} aria-hidden="true" />
-          <span>Radinx Organiser</span>
+          <span>Radynx Organizer</span>
         </div>
         <div className="auth-heading">
           <h1>{title}</h1>

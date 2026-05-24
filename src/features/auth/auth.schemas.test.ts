@@ -4,8 +4,8 @@ import { loginSchema, registerSchema, resetPasswordSchema } from '@/features/aut
 describe('auth schemas', () => {
   it('valida registrazione con password sicura', () => {
     const result = registerSchema.safeParse({
-      displayName: 'Radinx',
-      email: 'radinx@example.com',
+      displayName: 'Radynx',
+      email: 'radynx@example.com',
       password: 'Password1',
       confirmPassword: 'Password1',
     })

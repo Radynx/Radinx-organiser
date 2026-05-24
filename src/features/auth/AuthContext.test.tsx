@@ -16,7 +16,7 @@ const { fakeAuth, fakeUser } = vi.hoisted(() => {
   const user = {
     uid: 'user-1',
     email: 'person@example.com',
-    displayName: 'Radinx User',
+    displayName: 'Radynx User',
     photoURL: null,
   }
 

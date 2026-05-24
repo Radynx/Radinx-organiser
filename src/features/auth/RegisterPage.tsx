@@ -45,7 +45,7 @@ export function RegisterPage() {
 
   return (
     <AuthShell
-      title="Crea il tuo organiser"
+      title="Crea il tuo organizer"
       subtitle="I dati vengono salvati in Firebase e restano separati per singolo utente."
     >
       <form className="form-stack" onSubmit={onSubmit}>

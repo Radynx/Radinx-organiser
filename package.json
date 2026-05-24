@@ -2,7 +2,7 @@
   "name": "radinx-organiser",
   "private": true,
   "version": "1.0.0",
-  "description": "Organiser personale e lavorativo con Firebase, calendario, task e storico attività.",
+  "description": "Organizer personale e lavorativo con Firebase, calendario, task e storico attività.",
   "type": "module",
   "scripts": {
     "dev": "vite",
