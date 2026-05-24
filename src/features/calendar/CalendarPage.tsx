@@ -66,7 +66,7 @@ const toFormData = (event: CalendarEvent): EventFormData => ({
 })
 
 const isInteractiveTarget = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
+  target instanceof Element &&
   Boolean(target.closest('button, a, input, select, textarea, [data-skip-cell-click="true"]'))
 
 export function CalendarPage() {
@@ -587,6 +587,16 @@ function EventPill({
   const color = getCategoryColor(event.category, categories, colors)
   const label = getCategoryLabel(event.category, categories)
 
+  const handleEdit = (clickEvent: MouseEvent<HTMLButtonElement>) => {
+    clickEvent.stopPropagation()
+    onEdit(event)
+  }
+
+  const handleDelete = (clickEvent: MouseEvent<HTMLButtonElement>) => {
+    clickEvent.stopPropagation()
+    onDelete(event)
+  }
+
   return (
     <div
       className={`event-pill${compact ? ' event-pill-compact' : ''}`}
@@ -595,15 +605,15 @@ function EventPill({
       style={{ '--event-color': color, borderLeftColor: color } as CSSProperties}
       onDragStart={(dragEvent) => dragEvent.dataTransfer.setData('text/plain', event.id)}
     >
-      <button type="button" onClick={() => onEdit(event)}>
+      <button type="button" onClick={handleEdit}>
         <strong>{compact ? event.title : `${event.startTime} ${event.title}`}</strong>
         {!compact ? <span>{label}</span> : null}
       </button>
       <div className="pill-actions">
-        <button type="button" aria-label="Modifica evento" onClick={() => onEdit(event)}>
+        <button type="button" aria-label="Modifica evento" onClick={handleEdit}>
           <Pencil size={14} aria-hidden="true" />
         </button>
-        <button type="button" aria-label="Elimina evento" onClick={() => onDelete(event)}>
+        <button type="button" aria-label="Elimina evento" onClick={handleDelete}>
           <Trash2 size={14} aria-hidden="true" />
         </button>
       </div>

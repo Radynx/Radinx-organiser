@@ -1,10 +1,13 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { defaultSettings } from '@/features/settings/defaultSettings'
+import type { CalendarEvent } from '@/types/domain'
+import { todayISODate } from '@/utils/date'
 
 const settingsState = vi.hoisted(() => ({ current: undefined as unknown }))
+const eventsState = vi.hoisted(() => ({ current: [] as CalendarEvent[] }))
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
@@ -24,7 +27,7 @@ vi.mock('@/contexts/ToastContext', () => ({
 vi.mock('@/features/calendar/useEvents', () => ({
   useEvents: () => ({
     error: null,
-    events: [],
+    events: eventsState.current,
     loading: false,
   }),
 }))
@@ -46,6 +49,7 @@ vi.mock('@/features/calendar/events.service', () => ({
 
 describe('CalendarPage', () => {
   beforeEach(() => {
+    eventsState.current = []
     settingsState.current = {
       ...defaultSettings,
       categories: [
@@ -86,5 +90,36 @@ describe('CalendarPage', () => {
     const dialog = screen.getByRole('dialog')
 
     expect(within(dialog).getByRole('option', { name: 'Sport' })).toBeInTheDocument()
+  })
+
+  it('non apre la creazione evento quando si clicca sull’icona elimina', () => {
+    eventsState.current = [
+      {
+        id: 'event-1',
+        title: 'Banana',
+        description: '',
+        date: todayISODate(),
+        startTime: '09:00',
+        endTime: '10:00',
+        category: 'personal',
+        priority: 'medium',
+        notes: '',
+        createdAt: new Date(0).toISOString(),
+        updatedAt: new Date(0).toISOString(),
+      },
+    ]
+
+    render(<CalendarPage />)
+
+    const deleteButton = screen.getByRole('button', { name: 'Elimina evento' })
+    const deleteIcon = deleteButton.querySelector('svg')
+    if (!deleteIcon) throw new Error('Icona elimina non trovata')
+
+    fireEvent.click(deleteIcon)
+
+    const dialogs = screen.getAllByRole('dialog')
+    expect(dialogs).toHaveLength(1)
+    expect(dialogs[0]).toHaveTextContent('Eliminare evento?')
+    expect(dialogs[0]).not.toHaveTextContent('Nuovo evento')
   })
 })
