@@ -4,7 +4,7 @@ export const taskStatuses = ['todo', 'in-progress', 'completed'] as const
 export const calendarProviders = ['google', 'apple'] as const
 
 export type Priority = (typeof priorities)[number]
-export type EventCategory = (typeof eventCategories)[number]
+export type EventCategory = string
 export type TaskStatus = (typeof taskStatuses)[number]
 export type CalendarProvider = (typeof calendarProviders)[number]
 
@@ -29,6 +29,13 @@ export interface CalendarEvent {
   notes?: string
   createdAt: string
   updatedAt: string
+}
+
+export interface CalendarCategory {
+  id: string
+  label: string
+  color: string
+  system?: boolean
 }
 
 export interface WorkTask {
@@ -65,6 +72,7 @@ export interface CalendarColors {
 
 export interface UserSettings {
   colors: CalendarColors
+  categories: CalendarCategory[]
   theme: ThemePreference
   calendarConnections: Record<CalendarProvider, CalendarConnection>
   updatedAt: string

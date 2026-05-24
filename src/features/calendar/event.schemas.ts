@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { eventCategories, priorities } from '@/types/domain'
+import { priorities } from '@/types/domain'
 
 export const eventSchema = z
   .object({
@@ -8,7 +8,12 @@ export const eventSchema = z
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Inserisci una data valida.'),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Inserisci un orario valido.'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Inserisci un orario valido.'),
-    category: z.enum(eventCategories),
+    category: z
+      .string()
+      .trim()
+      .min(1, 'Scegli una categoria.')
+      .max(80)
+      .regex(/^[a-z0-9][a-z0-9-]*$/, 'Categoria non valida.'),
     priority: z.enum(priorities),
     notes: z.string().trim().max(1200).optional().or(z.literal('')),
   })

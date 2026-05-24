@@ -1,4 +1,4 @@
-import type { CalendarConnectionStatus, EventCategory, Priority, TaskStatus } from '@/types/domain'
+import type { CalendarConnectionStatus, Priority, TaskStatus } from '@/types/domain'
 
 export const priorityLabels: Record<Priority, string> = {
   low: 'Bassa',
@@ -14,7 +14,7 @@ export const priorityTone: Record<Priority, 'neutral' | 'blue' | 'green' | 'red'
   critical: 'red',
 }
 
-export const categoryLabels: Record<EventCategory, string> = {
+export const categoryLabels: Record<string, string> = {
   personal: 'Personale',
   work: 'Lavoro',
   important: 'Importante',

@@ -1,26 +1,32 @@
 import { onSnapshot, setDoc, type Unsubscribe } from 'firebase/firestore'
 import { userSettingsRef } from '@/lib/firestorePaths'
-import type { CalendarConnection, CalendarProvider, UserSettings } from '@/types/domain'
+import type { CalendarCategory, CalendarConnection, CalendarProvider, UserSettings } from '@/types/domain'
+import { normalizeCategories } from '@/features/settings/categories'
 import { defaultSettings } from '@/features/settings/defaultSettings'
 
-const mergeSettings = (data: Partial<UserSettings> | undefined): UserSettings => ({
-  ...defaultSettings,
-  ...data,
-  colors: {
+const mergeSettings = (data: Partial<UserSettings> | undefined): UserSettings => {
+  const colors = {
     ...defaultSettings.colors,
     ...data?.colors,
-  },
-  calendarConnections: {
-    google: {
-      ...defaultSettings.calendarConnections.google,
-      ...data?.calendarConnections?.google,
+  }
+
+  return {
+    ...defaultSettings,
+    ...data,
+    colors,
+    categories: normalizeCategories(data?.categories, colors),
+    calendarConnections: {
+      google: {
+        ...defaultSettings.calendarConnections.google,
+        ...data?.calendarConnections?.google,
+      },
+      apple: {
+        ...defaultSettings.calendarConnections.apple,
+        ...data?.calendarConnections?.apple,
+      },
     },
-    apple: {
-      ...defaultSettings.calendarConnections.apple,
-      ...data?.calendarConnections?.apple,
-    },
-  },
-})
+  }
+}
 
 export const subscribeToSettings = (
   userId: string,
@@ -40,6 +46,17 @@ export const saveColorSettings = async (userId: string, colors: UserSettings['co
     userSettingsRef(userId),
     {
       colors,
+      updatedAt: new Date().toISOString(),
+    },
+    { merge: true },
+  )
+}
+
+export const saveCategorySettings = async (userId: string, categories: CalendarCategory[]) => {
+  await setDoc(
+    userSettingsRef(userId),
+    {
+      categories: normalizeCategories(categories, defaultSettings.colors),
       updatedAt: new Date().toISOString(),
     },
     { merge: true },

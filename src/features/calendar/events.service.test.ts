@@ -32,14 +32,14 @@ describe('events service', () => {
   })
 
   it('crea eventi sanitizzando input e usando path utente', async () => {
-    await createEvent('user-1', eventInput)
+    await createEvent('user-1', { ...eventInput, category: 'sport' })
 
     expect(addDoc).toHaveBeenCalledWith(
       { type: 'collection', path: 'users/user-1/events' },
       expect.objectContaining({
         title: 'Evento importante',
         notes: 'Nota',
-        category: 'important',
+        category: 'sport',
         priority: 'critical',
       }),
     )

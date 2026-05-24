@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Camera, KeyRound, Palette, PlugZap, Save, Shield, Trash2, Upload } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Camera, KeyRound, Palette, PlugZap, Plus, Save, Shield, Tags, Trash2, Upload } from 'lucide-react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/Skeleton'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { passwordUpdateSchema, type PasswordUpdateFormData } from '@/features/auth/auth.schemas'
+import { cleanCategoryColor, cleanCategoryLabel, createCategoryId } from '@/features/settings/categories'
 import { defaultSettings } from '@/features/settings/defaultSettings'
 import {
   colorSettingsSchema,
@@ -21,6 +22,7 @@ import {
 import {
   disconnectCalendar,
   saveColorSettings,
+  saveCategorySettings,
   saveThemePreference,
   startCalendarConnection,
 } from '@/features/settings/settings.service'
@@ -47,11 +49,14 @@ export function SettingsPage() {
   const { notify } = useToast()
   const { error, loading, settings } = useSettings(userId)
   const [savingColors, setSavingColors] = useState(false)
+  const [savingCategories, setSavingCategories] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [calendarWizard, setCalendarWizard] = useState<CalendarProvider | null>(null)
   const [calendarLoading, setCalendarLoading] = useState<CalendarProvider | null>(null)
+  const [categoryName, setCategoryName] = useState('')
+  const [categoryColor, setCategoryColor] = useState('#0ea5e9')
 
   const colorForm = useForm<ColorSettingsFormData>({
     resolver: zodResolver(colorSettingsSchema),
@@ -97,6 +102,53 @@ export function SettingsPage() {
       setSavingColors(false)
     }
   })
+
+  const handleAddCategory = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!userId) return
+
+    const label = cleanCategoryLabel(categoryName)
+
+    if (label.length < 2) {
+      notify({ title: 'Categoria non valida', description: 'Inserisci almeno 2 caratteri.', variant: 'warning' })
+      return
+    }
+
+    setSavingCategories(true)
+    try {
+      const nextCategory = {
+        id: createCategoryId(label, settings.categories.map((category) => category.id)),
+        label,
+        color: cleanCategoryColor(categoryColor),
+        system: false,
+      }
+
+      await saveCategorySettings(userId, [...settings.categories, nextCategory])
+      setCategoryName('')
+      setCategoryColor('#0ea5e9')
+      notify({ title: 'Categoria creata', variant: 'success' })
+    } catch (error) {
+      notify({ title: 'Categoria non salvata', description: toUserMessage(error), variant: 'error' })
+    } finally {
+      setSavingCategories(false)
+    }
+  }
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!userId) return
+    setSavingCategories(true)
+    try {
+      await saveCategorySettings(
+        userId,
+        settings.categories.filter((category) => category.system || category.id !== categoryId),
+      )
+      notify({ title: 'Categoria eliminata', variant: 'success' })
+    } catch (error) {
+      notify({ title: 'Categoria non eliminata', description: toUserMessage(error), variant: 'error' })
+    } finally {
+      setSavingCategories(false)
+    }
+  }
 
   const onSaveProfile = profileForm.handleSubmit(async (data) => {
     setSavingProfile(true)
@@ -273,6 +325,59 @@ export function SettingsPage() {
                 </Button>
               </footer>
             </form>
+          </article>
+
+          <article className="panel">
+            <header className="panel-header">
+              <div>
+                <h2>Categorie calendario</h2>
+                <p>Crea categorie personali con colore dedicato.</p>
+              </div>
+              <Tags size={20} aria-hidden="true" />
+            </header>
+            <form className="category-create-form" onSubmit={handleAddCategory}>
+              <InputField
+                label="Nome categoria"
+                maxLength={40}
+                value={categoryName}
+                onChange={(event) => setCategoryName(event.target.value)}
+              />
+              <InputField
+                label="Colore"
+                type="color"
+                value={categoryColor}
+                onChange={(event) => setCategoryColor(event.target.value)}
+              />
+              <Button loading={savingCategories} type="submit" icon={<Plus size={16} />}>
+                Aggiungi
+              </Button>
+            </form>
+            <div className="category-list">
+              {settings.categories.map((category) => (
+                <div className="category-row" key={category.id}>
+                  <span
+                    aria-hidden="true"
+                    className="category-swatch"
+                    style={{ backgroundColor: category.color }}
+                  />
+                  <strong>{category.label}</strong>
+                  <Badge tone={category.system ? 'neutral' : 'blue'}>
+                    {category.system ? 'Base' : 'Mia'}
+                  </Badge>
+                  {!category.system ? (
+                    <Button
+                      disabled={savingCategories}
+                      size="sm"
+                      variant="ghost"
+                      icon={<Trash2 size={16} />}
+                      onClick={() => handleDeleteCategory(category.id)}
+                    >
+                      Elimina
+                    </Button>
+                  ) : null}
+                </div>
+              ))}
+            </div>
           </article>
 
           <article className="panel">

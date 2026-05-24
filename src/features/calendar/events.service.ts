@@ -28,9 +28,7 @@ const toEvent = (id: string, data: Record<string, unknown>): CalendarEvent => ({
   date: sanitizeText(data.date, 10),
   startTime: sanitizeText(data.startTime, 5),
   endTime: sanitizeText(data.endTime, 5),
-  category: data.category === 'work' || data.category === 'important' || data.category === 'other'
-    ? data.category
-    : 'personal',
+  category: sanitizeText(data.category, 80) || 'personal',
   priority:
     data.priority === 'low' ||
     data.priority === 'high' ||

@@ -29,8 +29,9 @@ import {
   updateEvent,
 } from '@/features/calendar/events.service'
 import { useEvents } from '@/features/calendar/useEvents'
+import { getCategoryColor, getCategoryLabel } from '@/features/settings/categories'
 import { toUserMessage } from '@/lib/errors'
-import type { CalendarEvent, CalendarView, EventCategory, Priority } from '@/types/domain'
+import type { CalendarCategory, CalendarColors, CalendarEvent, CalendarView, Priority } from '@/types/domain'
 import {
   formatDate,
   getMonthGridDays,
@@ -40,7 +41,7 @@ import {
   toISODate,
   todayISODate,
 } from '@/utils/date'
-import { categoryLabels, priorityLabels, priorityTone } from '@/utils/labels'
+import { priorityLabels, priorityTone } from '@/utils/labels'
 
 const emptyEvent: EventFormData = {
   title: '',
@@ -81,7 +82,7 @@ export function CalendarPage() {
   const [deletingEvent, setDeletingEvent] = useState<CalendarEvent | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [categoryFilter, setCategoryFilter] = useState<EventCategory | 'all'>('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all')
   const [keyword, setKeyword] = useState('')
 
@@ -113,6 +114,8 @@ export function CalendarPage() {
       return matchesCategory && matchesPriority && matchesKeyword
     })
   }, [categoryFilter, events, keyword, priorityFilter])
+
+  const categoryOptions = settings.categories
 
   const openCreateModal = (date = cursorDate) => {
     setEditingEvent(null)
@@ -229,13 +232,14 @@ export function CalendarPage() {
         <select
           aria-label="Filtra categoria"
           value={categoryFilter}
-          onChange={(event) => setCategoryFilter(event.target.value as EventCategory | 'all')}
+          onChange={(event) => setCategoryFilter(event.target.value)}
         >
           <option value="all">Tutte le categorie</option>
-          <option value="personal">Personale</option>
-          <option value="work">Lavoro</option>
-          <option value="important">Importanti</option>
-          <option value="other">Altro</option>
+          {categoryOptions.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.label}
+            </option>
+          ))}
         </select>
         <select
           aria-label="Filtra priorità"
@@ -262,6 +266,7 @@ export function CalendarPage() {
         </section>
       ) : view === 'day' ? (
         <DayView
+          categories={categoryOptions}
           colors={settings.colors}
           date={cursorDate}
           events={filteredEvents}
@@ -271,6 +276,7 @@ export function CalendarPage() {
         />
       ) : view === 'week' ? (
         <WeekView
+          categories={categoryOptions}
           colors={settings.colors}
           cursorDate={cursorDate}
           events={filteredEvents}
@@ -281,6 +287,7 @@ export function CalendarPage() {
         />
       ) : (
         <MonthView
+          categories={categoryOptions}
           colors={settings.colors}
           cursorDate={cursorDate}
           events={filteredEvents}
@@ -320,10 +327,11 @@ export function CalendarPage() {
             {...register('endTime')}
           />
           <SelectField error={errors.category?.message} label="Categoria" {...register('category')}>
-            <option value="personal">Personale</option>
-            <option value="work">Lavoro</option>
-            <option value="important">Importante</option>
-            <option value="other">Altro</option>
+            {categoryOptions.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.label}
+              </option>
+            ))}
           </SelectField>
           <SelectField error={errors.priority?.message} label="Priorità" {...register('priority')}>
             <option value="low">Bassa</option>
@@ -376,14 +384,15 @@ export function CalendarPage() {
 }
 
 interface CalendarViewProps {
-  colors: Record<'personal' | 'work' | 'important' | 'completed', string>
+  categories: CalendarCategory[]
+  colors: CalendarColors
   events: CalendarEvent[]
   onCreate: (date?: Date) => void
   onDelete: (event: CalendarEvent) => void
   onEdit: (event: CalendarEvent) => void
 }
 
-function DayView({ colors, date, events, onCreate, onDelete, onEdit }: CalendarViewProps & { date: Date }) {
+function DayView({ categories, colors, date, events, onCreate, onDelete, onEdit }: CalendarViewProps & { date: Date }) {
   const dayEvents = events.filter((event) => isISODateInSameDay(event.date, date))
 
   return (
@@ -401,6 +410,7 @@ function DayView({ colors, date, events, onCreate, onDelete, onEdit }: CalendarV
         <div className="calendar-day-list">
           {dayEvents.map((event) => (
             <EventCard
+              categories={categories}
               colors={colors}
               event={event}
               key={event.id}
@@ -417,6 +427,7 @@ function DayView({ colors, date, events, onCreate, onDelete, onEdit }: CalendarV
 }
 
 function WeekView({
+  categories,
   colors,
   cursorDate,
   events,
@@ -428,6 +439,18 @@ function WeekView({
   cursorDate: Date
   onDrop: (eventId: string, date: string) => void
 }) {
+  const handleCellClick = (event: MouseEvent<HTMLElement>, date: Date) => {
+    if (isInteractiveTarget(event.target)) return
+    onCreate(date)
+  }
+
+  const handleCellKeyDown = (event: KeyboardEvent<HTMLElement>, date: Date) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    if (isInteractiveTarget(event.target)) return
+    event.preventDefault()
+    onCreate(date)
+  }
+
   return (
     <section className="calendar-week">
       {getWeekDays(cursorDate).map((date) => {
@@ -435,13 +458,18 @@ function WeekView({
         const dayEvents = events.filter((event) => event.date === isoDate)
         return (
           <article
+            aria-label={`Crea evento per ${format(date, 'd MMMM yyyy', { locale: it })}`}
             className="calendar-column"
             key={isoDate}
+            onClick={(event) => handleCellClick(event, date)}
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => {
               const eventId = event.dataTransfer.getData('text/plain')
               if (eventId) onDrop(eventId, isoDate)
             }}
+            onKeyDown={(event) => handleCellKeyDown(event, date)}
+            role="button"
+            tabIndex={0}
           >
             <header>
               <span>{format(date, 'EEE', { locale: it })}</span>
@@ -452,6 +480,7 @@ function WeekView({
             <div className="event-stack">
               {dayEvents.map((event) => (
                 <EventPill
+                  categories={categories}
                   colors={colors}
                   event={event}
                   key={event.id}
@@ -468,6 +497,7 @@ function WeekView({
 }
 
 function MonthView({
+  categories,
   colors,
   cursorDate,
   events,
@@ -522,6 +552,7 @@ function MonthView({
               {dayEvents.slice(0, 3).map((event) => (
                 <EventPill
                   compact
+                  categories={categories}
                   colors={colors}
                   event={event}
                   key={event.id}
@@ -539,19 +570,22 @@ function MonthView({
 }
 
 function EventPill({
+  categories,
   colors,
   compact = false,
   event,
   onDelete,
   onEdit,
 }: {
-  colors: Record<'personal' | 'work' | 'important' | 'completed', string>
+  categories: CalendarCategory[]
+  colors: CalendarColors
   compact?: boolean
   event: CalendarEvent
   onDelete: (event: CalendarEvent) => void
   onEdit: (event: CalendarEvent) => void
 }) {
-  const color = event.category === 'other' ? colors.personal : colors[event.category]
+  const color = getCategoryColor(event.category, categories, colors)
+  const label = getCategoryLabel(event.category, categories)
 
   return (
     <div
@@ -563,7 +597,7 @@ function EventPill({
     >
       <button type="button" onClick={() => onEdit(event)}>
         <strong>{compact ? event.title : `${event.startTime} ${event.title}`}</strong>
-        {!compact ? <span>{categoryLabels[event.category]}</span> : null}
+        {!compact ? <span>{label}</span> : null}
       </button>
       <div className="pill-actions">
         <button type="button" aria-label="Modifica evento" onClick={() => onEdit(event)}>
@@ -578,17 +612,20 @@ function EventPill({
 }
 
 function EventCard({
+  categories,
   colors,
   event,
   onDelete,
   onEdit,
 }: {
-  colors: Record<'personal' | 'work' | 'important' | 'completed', string>
+  categories: CalendarCategory[]
+  colors: CalendarColors
   event: CalendarEvent
   onDelete: (event: CalendarEvent) => void
   onEdit: (event: CalendarEvent) => void
 }) {
-  const color = event.category === 'other' ? colors.personal : colors[event.category]
+  const color = getCategoryColor(event.category, categories, colors)
+  const label = getCategoryLabel(event.category, categories)
 
   return (
     <article className="event-card" style={{ borderLeftColor: color }}>
@@ -602,7 +639,7 @@ function EventCard({
       </div>
       <div className="event-card-side">
         <Badge tone={priorityTone[event.priority]}>{priorityLabels[event.priority]}</Badge>
-        <Badge>{categoryLabels[event.category]}</Badge>
+        <Badge>{label}</Badge>
         <button type="button" className="icon-button" aria-label="Modifica evento" onClick={() => onEdit(event)}>
           <Pencil size={16} aria-hidden="true" />
         </button>

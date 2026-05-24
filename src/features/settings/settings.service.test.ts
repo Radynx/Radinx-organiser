@@ -2,6 +2,7 @@ import { setDoc } from 'firebase/firestore'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   disconnectCalendar,
+  saveCategorySettings,
   saveColorSettings,
   startCalendarConnection,
 } from '@/features/settings/settings.service'
@@ -35,6 +36,23 @@ describe('settings service', () => {
     expect(setDoc).toHaveBeenCalledWith(
       { type: 'doc', path: 'users/user-1/settings/preferences' },
       expect.objectContaining({ colors }),
+      { merge: true },
+    )
+  })
+
+  it('salva categorie calendario personalizzate', async () => {
+    await saveCategorySettings('user-1', [
+      { id: 'personal', label: 'Personale', color: '#111111', system: true },
+      { id: 'sport', label: 'Sport', color: '#22c55e', system: false },
+    ])
+
+    expect(setDoc).toHaveBeenCalledWith(
+      { type: 'doc', path: 'users/user-1/settings/preferences' },
+      expect.objectContaining({
+        categories: expect.arrayContaining([
+          expect.objectContaining({ id: 'sport', label: 'Sport', color: '#22c55e' }),
+        ]),
+      }),
       { merge: true },
     )
   })

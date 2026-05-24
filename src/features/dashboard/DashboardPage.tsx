@@ -9,9 +9,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useEvents } from '@/features/calendar/useEvents'
 import { useCompletedTasks, useTasks } from '@/features/tasks/useTasks'
 import { useSettings } from '@/features/settings/useSettings'
+import { getCategoryLabel } from '@/features/settings/categories'
 import { combineDateAndTime, formatDateTime, formatShortDate, todayISODate } from '@/utils/date'
 import {
-  categoryLabels,
   connectionStatusLabels,
   priorityLabels,
   priorityTone,
@@ -115,7 +115,7 @@ export function DashboardPage() {
                   </time>
                   <div>
                     <strong>{event.title}</strong>
-                    <span>{categoryLabels[event.category]}</span>
+                    <span>{getCategoryLabel(event.category, settings.categories)}</span>
                   </div>
                   <Badge tone={priorityTone[event.priority]}>{priorityLabels[event.priority]}</Badge>
                 </div>
