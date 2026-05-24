@@ -123,12 +123,13 @@ users/{userId}/completedTasks/{taskId}
 users/{userId}/settings/preferences
 ```
 
-Ogni utente legge e scrive solo i propri documenti. Le regole sono in `firestore.rules`; gli indici sono in `firestore.indexes.json`.
+Ogni utente legge e scrive solo i propri documenti. Le regole sono in `firestore.rules`.
+Le schermate ordinano gli eventi lato client, quindi non servono indici compositi manuali per il calendario.
 
-Deploy regole e indici:
+Deploy regole:
 
 ```bash
-firebase deploy --only firestore
+firebase deploy --only firestore:rules
 ```
 
 ### Avatar profilo senza Storage

@@ -2,8 +2,6 @@ import {
   addDoc,
   deleteDoc,
   onSnapshot,
-  orderBy,
-  query,
   updateDoc,
   type Unsubscribe,
 } from 'firebase/firestore'
@@ -45,17 +43,32 @@ const toEvent = (id: string, data: Record<string, unknown>): CalendarEvent => ({
   updatedAt: sanitizeText(data.updatedAt, 40) || new Date().toISOString(),
 })
 
+const sortEvents = (events: CalendarEvent[]) =>
+  [...events].sort((left, right) => {
+    const byDate = left.date.localeCompare(right.date)
+
+    if (byDate !== 0) {
+      return byDate
+    }
+
+    const byStartTime = left.startTime.localeCompare(right.startTime)
+
+    if (byStartTime !== 0) {
+      return byStartTime
+    }
+
+    return left.id.localeCompare(right.id)
+  })
+
 export const subscribeToEvents = (
   userId: string,
   onData: (events: CalendarEvent[]) => void,
   onError: (error: Error) => void,
 ): Unsubscribe => {
-  const eventsQuery = query(eventsCollectionRef(userId), orderBy('date', 'asc'), orderBy('startTime', 'asc'))
-
   return onSnapshot(
-    eventsQuery,
+    eventsCollectionRef(userId),
     (snapshot) => {
-      onData(snapshot.docs.map((document) => toEvent(document.id, document.data())))
+      onData(sortEvents(snapshot.docs.map((document) => toEvent(document.id, document.data()))))
     },
     (error) => onError(error),
   )

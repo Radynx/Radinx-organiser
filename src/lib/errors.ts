@@ -10,6 +10,8 @@ const firebaseMessages: Record<string, string> = {
   'auth/requires-recent-login': 'Per sicurezza devi effettuare di nuovo il login.',
   'permission-denied':
     'Permessi insufficienti su Firebase. Verifica che Firestore abbia le regole del repository pubblicate.',
+  'failed-precondition':
+    'Firestore richiede una configurazione non ancora disponibile. Aggiorna la pagina; se il problema resta, pubblica le regole Firestore aggiornate.',
   unavailable: 'Servizio temporaneamente non disponibile.',
 }
 

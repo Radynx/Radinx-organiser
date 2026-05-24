@@ -14,12 +14,12 @@
   --violet: #6d42c7;
   --shadow: 0 14px 40px rgba(22, 32, 51, 0.08);
   --radius: 8px;
-  --sidebar-width: 280px;
+  --sidebar-width: 248px;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -118,10 +118,10 @@ code {
   height: 100svh;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
   border-right: 1px solid var(--border);
   background: var(--surface);
-  padding: 1.25rem;
+  padding: 1rem;
   z-index: 30;
 }
 
@@ -187,9 +187,9 @@ code {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 44px;
+  min-height: 40px;
   border-radius: var(--radius);
-  padding: 0.65rem 0.75rem;
+  padding: 0.55rem 0.65rem;
   color: var(--muted);
   transition:
     background 0.2s ease,
@@ -341,10 +341,10 @@ code {
 }
 
 .avatar.large {
-  width: 76px;
-  height: 76px;
-  flex-basis: 76px;
-  font-size: 1.6rem;
+  width: 64px;
+  height: 64px;
+  flex-basis: 64px;
+  font-size: 1.35rem;
 }
 
 .avatar img {
@@ -363,10 +363,10 @@ code {
   z-index: 20;
   justify-content: space-between;
   gap: 1rem;
-  min-height: 72px;
+  min-height: 60px;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
-  padding: 0 1.5rem;
+  padding: 0 1rem;
   backdrop-filter: blur(14px);
 }
 
@@ -376,14 +376,14 @@ code {
 }
 
 .content {
-  width: min(1480px, 100%);
+  width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .page-flow {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .page-header {
@@ -394,8 +394,8 @@ code {
 .page-header h1,
 .auth-heading h1 {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 3.3rem);
-  line-height: 1.05;
+  font-size: 1.8rem;
+  line-height: 1.15;
   letter-spacing: 0;
 }
 
@@ -436,7 +436,7 @@ code {
 }
 
 .panel {
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .panel-header {
@@ -466,8 +466,8 @@ code {
 .metric-card {
   display: grid;
   gap: 0.35rem;
-  min-height: 132px;
-  padding: 1rem;
+  min-height: 104px;
+  padding: 0.85rem;
 }
 
 .metric-card span {
@@ -476,7 +476,7 @@ code {
 }
 
 .metric-card strong {
-  font-size: 2.4rem;
+  font-size: 1.9rem;
   line-height: 1;
 }
 
@@ -488,7 +488,7 @@ code {
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .button {
@@ -518,14 +518,14 @@ code {
 }
 
 .button-md {
-  min-height: 42px;
-  padding: 0.65rem 0.95rem;
+  min-height: 38px;
+  padding: 0.5rem 0.8rem;
 }
 
 .button-sm {
-  min-height: 34px;
-  padding: 0.45rem 0.7rem;
-  font-size: 0.9rem;
+  min-height: 32px;
+  padding: 0.38rem 0.65rem;
+  font-size: 0.88rem;
 }
 
 .button-primary {
@@ -570,8 +570,8 @@ code {
 }
 
 .icon-button {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: inline-grid;
   place-items: center;
   border: 1px solid var(--border);
@@ -669,12 +669,12 @@ code {
 .filters-panel select,
 .task-card select {
   width: 100%;
-  min-height: 42px;
+  min-height: 38px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
-  padding: 0.6rem 0.75rem;
+  padding: 0.5rem 0.65rem;
 }
 
 .field input[type="color"] {
@@ -683,7 +683,7 @@ code {
 }
 
 .field textarea {
-  min-height: 92px;
+  min-height: 84px;
   resize: vertical;
 }
 
@@ -726,10 +726,10 @@ code {
 }
 
 .auth-panel {
-  width: min(520px, 100%);
+  width: min(460px, 100%);
   display: grid;
-  gap: 1.25rem;
-  padding: 1.5rem;
+  gap: 1rem;
+  padding: 1.15rem;
 }
 
 .brand-mark {
@@ -804,12 +804,12 @@ code {
 }
 
 .modal {
-  width: min(760px, 100%);
+  width: min(680px, 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow);
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .modal-header {
@@ -848,7 +848,7 @@ code {
   display: grid;
   place-items: center;
   gap: 0.5rem;
-  min-height: 180px;
+  min-height: 140px;
   border: 1px dashed var(--border);
   border-radius: var(--radius);
   padding: 1.25rem;
@@ -902,7 +902,7 @@ code {
   gap: 0.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.75rem;
+  padding: 0.65rem;
   background: var(--surface);
 }
 
@@ -918,11 +918,11 @@ code {
 
 .toolbar,
 .filters-panel {
-  gap: 0.75rem;
+  gap: 0.6rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-  padding: 0.8rem;
+  padding: 0.65rem;
 }
 
 .toolbar {
@@ -932,13 +932,13 @@ code {
 
 .filters-panel {
   display: grid;
-  grid-template-columns: auto minmax(180px, 1fr) repeat(3, minmax(140px, auto));
+  grid-template-columns: auto minmax(160px, 1fr) repeat(3, minmax(128px, auto));
   align-items: center;
 }
 
 .segmented-control {
   display: inline-grid;
-  grid-template-columns: repeat(3, minmax(90px, 1fr));
+  grid-template-columns: repeat(3, minmax(74px, 1fr));
   gap: 0.25rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -947,7 +947,7 @@ code {
 }
 
 .segmented-control button {
-  min-height: 34px;
+  min-height: 32px;
   border: 0;
   border-radius: 6px;
   background: transparent;
@@ -975,8 +975,8 @@ code {
 }
 
 .calendar-column {
-  min-height: 520px;
-  padding: 0.75rem;
+  min-height: 420px;
+  padding: 0.65rem;
 }
 
 .calendar-column header,
@@ -995,8 +995,8 @@ code {
 
 .calendar-column header button,
 .calendar-month header button {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: 1px solid var(--border);
   border-radius: 50%;
   background: var(--surface);
@@ -1012,8 +1012,8 @@ code {
 }
 
 .calendar-month article {
-  min-height: 150px;
-  padding: 0.65rem;
+  min-height: 118px;
+  padding: 0.55rem;
 }
 
 .calendar-month .muted-day {
@@ -1065,11 +1065,11 @@ code {
 .event-card {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 1rem;
+  gap: 0.75rem;
   border: 1px solid var(--border);
   border-left: 5px solid var(--primary);
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 0.85rem;
 }
 
 .event-card time {
@@ -1105,8 +1105,8 @@ code {
 }
 
 .kanban-column {
-  min-height: 560px;
-  padding: 1rem;
+  min-height: 420px;
+  padding: 0.85rem;
 }
 
 .kanban-column > header {
@@ -1118,8 +1118,8 @@ code {
 
 .task-card {
   display: grid;
-  gap: 0.7rem;
-  padding: 1rem;
+  gap: 0.6rem;
+  padding: 0.85rem;
 }
 
 .task-card p {
@@ -1152,8 +1152,8 @@ code {
 
 .completed-card {
   display: grid;
-  gap: 0.9rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 0.85rem;
 }
 
 .completed-card header,
@@ -1187,7 +1187,7 @@ code {
 }
 
 .color-preview span {
-  min-height: 52px;
+  min-height: 44px;
   display: grid;
   place-items: center;
   border-radius: var(--radius);
@@ -1212,7 +1212,7 @@ code {
   display: grid;
   grid-template-columns: 1fr auto auto;
   gap: 0.75rem;
-  padding: 1rem;
+  padding: 0.85rem;
 }
 
 .calendar-connection-card div:first-child {
@@ -1237,6 +1237,10 @@ code {
 }
 
 @media (max-width: 1180px) {
+  .content {
+    width: 100%;
+  }
+
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1250,7 +1254,16 @@ code {
   .calendar-week,
   .calendar-month {
     overflow-x: auto;
-    grid-template-columns: repeat(7, minmax(180px, 1fr));
+    grid-template-columns: repeat(7, minmax(142px, 1fr));
+    padding-bottom: 0.25rem;
+  }
+
+  .calendar-column {
+    min-height: 360px;
+  }
+
+  .calendar-month article {
+    min-height: 104px;
   }
 }
 
@@ -1263,7 +1276,7 @@ code {
     position: fixed;
     left: 0;
     transform: translateX(-105%);
-    width: min(var(--sidebar-width), 88vw);
+    width: min(var(--sidebar-width), 86vw);
     transition: transform 0.2s ease;
   }
 
@@ -1288,11 +1301,12 @@ code {
   }
 
   .topbar {
+    min-height: 56px;
     padding: 0 1rem;
   }
 
   .content {
-    padding: 1rem;
+    padding: 0.85rem;
   }
 
   .page-header,
@@ -1306,10 +1320,28 @@ code {
     grid-template-columns: 1fr;
   }
 
+  .filters-panel .segmented-control,
+  .toolbar .segmented-control {
+    width: 100%;
+  }
+
   .kanban-grid,
   .form-grid,
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .calendar-week {
+    overflow: visible;
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-column {
+    min-height: auto;
+  }
+
+  .calendar-month {
+    grid-template-columns: repeat(7, minmax(104px, 1fr));
   }
 
   .span-2 {
@@ -1322,18 +1354,56 @@ code {
 }
 
 @media (max-width: 560px) {
+  :root {
+    font-size: 14px;
+  }
+
   .content {
-    padding: 0.75rem;
+    padding: 0.65rem;
   }
 
   .panel,
   .auth-panel {
-    padding: 1rem;
+    padding: 0.85rem;
+  }
+
+  .page-flow {
+    gap: 0.75rem;
+  }
+
+  .page-header h1,
+  .auth-heading h1 {
+    font-size: 1.45rem;
+  }
+
+  .page-header p,
+  .auth-heading p {
+    margin-top: 0.3rem;
   }
 
   .topbar-title span,
   .topbar .button span {
     display: none;
+  }
+
+  .topbar {
+    min-height: 52px;
+    gap: 0.55rem;
+    padding: 0 0.65rem;
+  }
+
+  .page-actions,
+  .modal-actions,
+  .photo-actions {
+    width: 100%;
+  }
+
+  .page-actions .button,
+  .modal-actions .button,
+  .photo-actions .button,
+  .photo-actions label.button {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .event-card,
@@ -1348,6 +1418,30 @@ code {
   }
 
   .modal {
-    padding: 1rem;
+    padding: 0.85rem;
+  }
+
+  .metric-card {
+    min-height: auto;
+  }
+
+  .metric-card strong {
+    font-size: 1.6rem;
+  }
+
+  .calendar-month {
+    grid-template-columns: repeat(7, minmax(92px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .calendar-month article {
+    min-height: 92px;
+  }
+
+  .completed-card header,
+  .completed-card footer,
+  .task-check-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
