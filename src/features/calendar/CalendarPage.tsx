@@ -8,7 +8,7 @@ import {
 } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { CalendarPlus, ChevronLeft, ChevronRight, Filter, Pencil, Trash2 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
@@ -63,6 +63,10 @@ const toFormData = (event: CalendarEvent): EventFormData => ({
   priority: event.priority,
   notes: event.notes ?? '',
 })
+
+const isInteractiveTarget = (target: EventTarget | null) =>
+  target instanceof HTMLElement &&
+  Boolean(target.closest('button, a, input, select, textarea, [data-skip-cell-click="true"]'))
 
 export function CalendarPage() {
   const { user } = useAuth()
@@ -475,26 +479,44 @@ function MonthView({
   cursorDate: Date
   onDrop: (eventId: string, date: string) => void
 }) {
+  const handleCellClick = (event: MouseEvent<HTMLElement>, date: Date) => {
+    if (isInteractiveTarget(event.target)) return
+    onCreate(date)
+  }
+
+  const handleCellKeyDown = (event: KeyboardEvent<HTMLElement>, date: Date) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    if (isInteractiveTarget(event.target)) return
+    event.preventDefault()
+    onCreate(date)
+  }
+
   return (
     <section className="calendar-month">
       {getMonthGridDays(cursorDate).map((date) => {
         const isoDate = toISODate(date)
         const dayEvents = events.filter((event) => event.date === isoDate)
+        const isToday = isoDate === todayISODate()
         return (
           <article
-            className={isISODateInSameMonth(isoDate, cursorDate) ? '' : 'muted-day'}
+            aria-label={`Crea evento per ${format(date, 'd MMMM yyyy', { locale: it })}`}
+            className={`${isISODateInSameMonth(isoDate, cursorDate) ? '' : 'muted-day'}${isToday ? ' today-day' : ''}`}
             key={isoDate}
+            onClick={(event) => handleCellClick(event, date)}
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => {
               const eventId = event.dataTransfer.getData('text/plain')
               if (eventId) onDrop(eventId, isoDate)
             }}
+            onKeyDown={(event) => handleCellKeyDown(event, date)}
+            role="button"
+            tabIndex={0}
           >
             <header>
               <button type="button" onClick={() => onCreate(date)}>
                 {format(date, 'd', { locale: it })}
               </button>
-              {isoDate === todayISODate() ? <Badge tone="blue">Oggi</Badge> : null}
+              {isToday ? <Badge tone="blue">Oggi</Badge> : null}
             </header>
             <div className="event-stack">
               {dayEvents.slice(0, 3).map((event) => (
@@ -533,9 +555,10 @@ function EventPill({
 
   return (
     <div
-      className="event-pill"
+      className={`event-pill${compact ? ' event-pill-compact' : ''}`}
+      data-skip-cell-click="true"
       draggable
-      style={{ borderLeftColor: color }}
+      style={{ '--event-color': color, borderLeftColor: color } as CSSProperties}
       onDragStart={(dragEvent) => dragEvent.dataTransfer.setData('text/plain', event.id)}
     >
       <button type="button" onClick={() => onEdit(event)}>

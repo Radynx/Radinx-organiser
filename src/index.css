@@ -1059,10 +1059,30 @@ code {
 .calendar-month article {
   min-height: 118px;
   padding: 0.55rem;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.calendar-month article:hover,
+.calendar-month article:focus-visible {
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--border));
+  outline: none;
+}
+
+.calendar-month article:hover {
+  transform: translateY(-1px);
 }
 
 .calendar-month .muted-day {
   opacity: 0.52;
+}
+
+.calendar-month .today-day {
+  border-color: color-mix(in srgb, var(--primary) 58%, var(--border));
+  background: color-mix(in srgb, var(--primary) 7%, var(--surface));
 }
 
 .event-pill {
@@ -1075,6 +1095,10 @@ code {
   background: var(--surface);
   padding: 0.55rem;
   cursor: grab;
+}
+
+.event-pill-compact {
+  min-width: 0;
 }
 
 .event-pill button {
@@ -1315,16 +1339,17 @@ code {
 @media (max-width: 720px) {
   .app-shell,
   .app-shell.sidebar-collapsed {
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 56px minmax(0, 1fr);
   }
 
   .sidebar,
   .sidebar-collapsed .sidebar {
     position: sticky;
     left: auto;
-    width: 72px;
+    width: 56px;
     max-width: none;
-    padding: 0.65rem;
+    padding: calc(0.5rem + env(safe-area-inset-top)) 0.35rem
+      calc(0.5rem + env(safe-area-inset-bottom));
     transform: none;
     transition: none;
   }
@@ -1355,6 +1380,7 @@ code {
   .sidebar-nav a,
   .sidebar-collapsed .sidebar-nav a {
     justify-content: center;
+    min-height: 44px;
     padding-inline: 0;
   }
 
@@ -1364,9 +1390,21 @@ code {
     padding: 0.35rem 0;
   }
 
+  .sidebar .avatar {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .profile-menu {
+    left: 0;
+    right: auto;
+    width: min(220px, calc(100vw - 0.75rem));
+  }
+
   .topbar {
-    min-height: 56px;
-    padding: 0 1rem;
+    min-height: calc(56px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 0.8rem 0;
   }
 
   .content {
@@ -1406,7 +1444,70 @@ code {
   }
 
   .calendar-month {
-    grid-template-columns: repeat(7, minmax(104px, 1fr));
+    overflow: visible;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .calendar-month article {
+    min-height: 72px;
+    border-radius: 7px;
+    padding: 0.3rem;
+    box-shadow: none;
+  }
+
+  .calendar-month header {
+    min-height: 28px;
+    margin-bottom: 0.25rem;
+  }
+
+  .calendar-month header button {
+    width: 28px;
+    height: 28px;
+    font-size: 0.82rem;
+  }
+
+  .calendar-month .today-day header button {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #ffffff;
+  }
+
+  .calendar-month .badge {
+    display: none;
+  }
+
+  .calendar-month .event-stack {
+    gap: 0.22rem;
+  }
+
+  .calendar-month .event-pill-compact {
+    min-height: 7px;
+    border-left-width: 0;
+    border-radius: 999px;
+    padding: 0;
+    background: var(--event-color, var(--primary));
+  }
+
+  .calendar-month .event-pill-compact button,
+  .calendar-month .event-pill-compact .pill-actions {
+    display: none;
+  }
+
+  .date-navigation {
+    width: 100%;
+    min-width: 0;
+    justify-content: space-between;
+  }
+
+  .date-navigation strong {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .toolbar > .button {
+    width: 100%;
+    min-width: 0;
   }
 
   .span-2 {
@@ -1426,6 +1527,17 @@ code {
   .content {
     padding: 0.65rem;
     min-height: calc(100svh - 52px);
+  }
+
+  .app-shell,
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+
+  .sidebar,
+  .sidebar-collapsed .sidebar {
+    width: 52px;
+    padding-inline: 0.3rem;
   }
 
   .panel,
@@ -1453,9 +1565,10 @@ code {
   }
 
   .topbar {
-    min-height: 52px;
+    min-height: calc(52px + env(safe-area-inset-top));
     gap: 0.55rem;
     padding: 0 0.65rem;
+    padding-top: env(safe-area-inset-top);
   }
 
   .page-actions,
@@ -1496,12 +1609,23 @@ code {
   }
 
   .calendar-month {
-    grid-template-columns: repeat(7, minmax(92px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.3rem;
   }
 
   .calendar-month article {
-    min-height: 92px;
+    min-height: 62px;
+    padding: 0.25rem;
+  }
+
+  .calendar-month header {
+    min-height: 26px;
+  }
+
+  .calendar-month header button {
+    width: 26px;
+    height: 26px;
+    font-size: 0.78rem;
   }
 
   .completed-card header,
