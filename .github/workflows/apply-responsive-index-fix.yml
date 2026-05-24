@@ -1,0 +1,47 @@
+name: Apply Responsive and Firestore Index Fix
+
+on:
+  push:
+    paths:
+      - .github/workflows/apply-responsive-index-fix.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download prepared source
+        run: |
+          curl -L "https://tmpfiles.org/dl/wFw66yRHrZR6/radinx-responsive-index-fix.zip" -o /tmp/radinx-responsive-index-fix.zip
+          echo "ae3e58aa3631c3c658900e2ae592ac6211623e4484ad96b4e0b0fa8b43525b88  /tmp/radinx-responsive-index-fix.zip" | sha256sum -c -
+
+      - name: Apply source snapshot
+        run: |
+          rm -rf /tmp/radinx-responsive-index-fix
+          mkdir -p /tmp/radinx-responsive-index-fix
+          unzip -q /tmp/radinx-responsive-index-fix.zip -d /tmp/radinx-responsive-index-fix
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.github/workflows' \
+            /tmp/radinx-responsive-index-fix/ ./
+          rm -f .github/workflows/apply-responsive-index-fix.yml
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Fix Firestore index requirement and responsive scale"
+          git push
