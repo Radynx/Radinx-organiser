@@ -8,12 +8,10 @@ import {
   CheckCircle2,
   LayoutDashboard,
   LogOut,
-  Menu,
   Settings,
   ShieldCheck,
   SquareKanban,
   UserRound,
-  X,
 } from 'lucide-react'
 import clsx from 'clsx'
 import { Button } from '@/components/Button'
@@ -38,7 +36,6 @@ export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [profileModalOpen, setProfileModalOpen] = useState(false)
@@ -51,7 +48,6 @@ export function AppLayout() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 })
-    setSidebarOpen(false)
   }, [location.pathname])
 
   useEffect(() => {
@@ -90,7 +86,6 @@ export function AppLayout() {
     try {
       await logout()
       setProfileMenuOpen(false)
-      setSidebarOpen(false)
       notify({ title: 'Logout effettuato', variant: 'success' })
       navigate('/login', { replace: true })
     } catch (error) {
@@ -111,21 +106,13 @@ export function AppLayout() {
 
   return (
     <div className={clsx('app-shell', sidebarCollapsed && 'sidebar-collapsed')}>
-      <aside className={clsx('sidebar', sidebarOpen && 'sidebar-open')}>
+      <aside className="sidebar">
         <div className="sidebar-brand">
           <ShieldCheck size={24} aria-hidden="true" />
           <div>
             <strong>Radinx</strong>
             <span>Organiser</span>
           </div>
-          <button
-            aria-label="Chiudi menu"
-            className="icon-button sidebar-close"
-            type="button"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={18} aria-hidden="true" />
-          </button>
           <button
             aria-label={sidebarCollapsed ? 'Espandi menu' : 'Minimizza menu'}
             className="icon-button sidebar-collapse"
@@ -148,7 +135,6 @@ export function AppLayout() {
                 key={item.to}
                 to={item.to}
                 title={sidebarCollapsed ? item.label : undefined}
-                onClick={() => setSidebarOpen(false)}
               >
                 <Icon size={18} aria-hidden="true" />
                 <span>{item.label}</span>
@@ -198,18 +184,8 @@ export function AppLayout() {
         </div>
       </aside>
 
-      <div className={clsx('sidebar-overlay', sidebarOpen && 'visible')} onClick={() => setSidebarOpen(false)} />
-
       <div className="main-shell">
         <header className="topbar">
-          <button
-            aria-label="Apri menu"
-            className="icon-button mobile-menu"
-            type="button"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu size={20} aria-hidden="true" />
-          </button>
           <div className="topbar-title">
             <strong>Radinx Organiser</strong>
             <span>Workspace personale</span>
