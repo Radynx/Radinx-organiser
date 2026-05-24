@@ -4,6 +4,7 @@ import {
   disconnectCalendar,
   saveCategorySettings,
   saveColorSettings,
+  saveThemePreference,
   startCalendarConnection,
 } from '@/features/settings/settings.service'
 
@@ -53,6 +54,16 @@ describe('settings service', () => {
           expect.objectContaining({ id: 'sport', label: 'Sport', color: '#22c55e' }),
         ]),
       }),
+      { merge: true },
+    )
+  })
+
+  it('salva un tema predefinito', async () => {
+    await saveThemePreference('user-1', 'forest')
+
+    expect(setDoc).toHaveBeenCalledWith(
+      { type: 'doc', path: 'users/user-1/settings/preferences' },
+      expect.objectContaining({ theme: 'forest' }),
       { merge: true },
     )
   })

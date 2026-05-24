@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
-import { InputField, SelectField } from '@/components/FormField'
+import { InputField } from '@/components/FormField'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
 import { Skeleton } from '@/components/Skeleton'
@@ -28,13 +28,57 @@ import {
 } from '@/features/settings/settings.service'
 import { useSettings } from '@/features/settings/useSettings'
 import { toUserMessage } from '@/lib/errors'
-import type { CalendarProvider } from '@/types/domain'
+import type { CalendarProvider, ThemePreference } from '@/types/domain'
 import { connectionStatusLabels } from '@/utils/labels'
 
 const providerLabels: Record<CalendarProvider, string> = {
   google: 'Google Calendar',
   apple: 'Apple Calendar',
 }
+
+const themeOptions: Array<{
+  value: ThemePreference
+  label: string
+  description: string
+  swatches: string[]
+}> = [
+  {
+    value: 'system',
+    label: 'Sistema',
+    description: 'Segue il tema del dispositivo.',
+    swatches: ['#f6f7f9', '#111827', '#2251d1'],
+  },
+  {
+    value: 'light',
+    label: 'Chiaro',
+    description: 'Interfaccia luminosa e neutra.',
+    swatches: ['#f6f7f9', '#ffffff', '#2251d1'],
+  },
+  {
+    value: 'dark',
+    label: 'Scuro',
+    description: 'Contrasto alto per sera e notte.',
+    swatches: ['#111827', '#182234', '#6d8dff'],
+  },
+  {
+    value: 'midnight',
+    label: 'Midnight',
+    description: 'Blu profondo con accenti freddi.',
+    swatches: ['#0d1324', '#151f33', '#8aa2ff'],
+  },
+  {
+    value: 'forest',
+    label: 'Forest',
+    description: 'Verde professionale e morbido.',
+    swatches: ['#f4f8f4', '#ffffff', '#1f7a4d'],
+  },
+  {
+    value: 'rose',
+    label: 'Rose',
+    description: 'Toni caldi ma puliti.',
+    swatches: ['#fbf6f8', '#ffffff', '#b83265'],
+  },
+]
 
 export function SettingsPage() {
   const {
@@ -211,7 +255,7 @@ export function SettingsPage() {
     }
   }
 
-  const handleThemeChange = async (theme: typeof settings.theme) => {
+  const handleThemeChange = async (theme: ThemePreference) => {
     if (!userId) return
     try {
       await saveThemePreference(userId, theme)
@@ -390,6 +434,45 @@ export function SettingsPage() {
             </div>
           </section>
 
+          <section className="settings-section" aria-labelledby="settings-appearance-title">
+            <header className="settings-section-header">
+              <div>
+                <h2 id="settings-appearance-title">Aspetto</h2>
+                <p>Temi predefiniti e preferenze colore dell'interfaccia.</p>
+              </div>
+            </header>
+            <div className="settings-section-grid single">
+              <article className="panel">
+                <header className="panel-header">
+                  <div>
+                    <h2>Tema</h2>
+                    <p>Scegli un preset pronto per tutta l'app.</p>
+                  </div>
+                  <Palette size={20} aria-hidden="true" />
+                </header>
+                <div className="theme-grid" role="list" aria-label="Temi predefiniti">
+                  {themeOptions.map((theme) => (
+                    <button
+                      aria-pressed={settings.theme === theme.value}
+                      className={`theme-card${settings.theme === theme.value ? ' active' : ''}`}
+                      key={theme.value}
+                      type="button"
+                      onClick={() => handleThemeChange(theme.value)}
+                    >
+                      <span className="theme-swatches" aria-hidden="true">
+                        {theme.swatches.map((color) => (
+                          <i key={color} style={{ backgroundColor: color }} />
+                        ))}
+                      </span>
+                      <strong>{theme.label}</strong>
+                      <span>{theme.description}</span>
+                    </button>
+                  ))}
+                </div>
+              </article>
+            </div>
+          </section>
+
           <section className="settings-section" aria-labelledby="settings-account-title">
             <header className="settings-section-header">
               <div>
@@ -478,15 +561,6 @@ export function SettingsPage() {
                 Cambia password
               </Button>
             </form>
-            <SelectField
-              label="Tema"
-              value={settings.theme}
-              onChange={(event) => handleThemeChange(event.target.value as typeof settings.theme)}
-            >
-              <option value="system">Sistema</option>
-              <option value="light">Chiaro</option>
-              <option value="dark">Scuro</option>
-            </SelectField>
           </article>
             </div>
           </section>

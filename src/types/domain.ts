@@ -2,6 +2,7 @@ export const priorities = ['low', 'medium', 'high', 'critical'] as const
 export const eventCategories = ['personal', 'work', 'important', 'other'] as const
 export const taskStatuses = ['todo', 'in-progress', 'completed'] as const
 export const calendarProviders = ['google', 'apple'] as const
+export const themePreferences = ['system', 'light', 'dark', 'midnight', 'forest', 'rose'] as const
 
 export type Priority = (typeof priorities)[number]
 export type EventCategory = string
@@ -9,7 +10,7 @@ export type TaskStatus = (typeof taskStatuses)[number]
 export type CalendarProvider = (typeof calendarProviders)[number]
 
 export type CalendarView = 'day' | 'week' | 'month'
-export type ThemePreference = 'system' | 'light' | 'dark'
+export type ThemePreference = (typeof themePreferences)[number]
 export type CalendarConnectionStatus =
   | 'disconnected'
   | 'needs_configuration'

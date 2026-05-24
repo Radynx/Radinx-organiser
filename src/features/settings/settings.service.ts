@@ -1,8 +1,18 @@
 import { onSnapshot, setDoc, type Unsubscribe } from 'firebase/firestore'
 import { userSettingsRef } from '@/lib/firestorePaths'
-import type { CalendarCategory, CalendarConnection, CalendarProvider, UserSettings } from '@/types/domain'
+import {
+  themePreferences,
+  type CalendarCategory,
+  type CalendarConnection,
+  type CalendarProvider,
+  type ThemePreference,
+  type UserSettings,
+} from '@/types/domain'
 import { normalizeCategories } from '@/features/settings/categories'
 import { defaultSettings } from '@/features/settings/defaultSettings'
+
+const isThemePreference = (theme: unknown): theme is ThemePreference =>
+  themePreferences.includes(theme as ThemePreference)
 
 const mergeSettings = (data: Partial<UserSettings> | undefined): UserSettings => {
   const colors = {
@@ -15,6 +25,7 @@ const mergeSettings = (data: Partial<UserSettings> | undefined): UserSettings =>
     ...data,
     colors,
     categories: normalizeCategories(data?.categories, colors),
+    theme: isThemePreference(data?.theme) ? data.theme : defaultSettings.theme,
     calendarConnections: {
       google: {
         ...defaultSettings.calendarConnections.google,

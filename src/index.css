@@ -64,6 +64,57 @@
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
 }
 
+:root[data-theme="midnight"] {
+  color-scheme: dark;
+  --bg: #0d1324;
+  --surface: #151f33;
+  --surface-strong: #22304a;
+  --text: #f7f8fc;
+  --muted: #a8b3c8;
+  --border: #34415c;
+  --primary: #8aa2ff;
+  --primary-strong: #c2ccff;
+  --danger: #ff7a7a;
+  --success: #5ed0a8;
+  --warning: #f2b35d;
+  --violet: #c8a7ff;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="forest"] {
+  color-scheme: light;
+  --bg: #f4f8f4;
+  --surface: #ffffff;
+  --surface-strong: #e8f1ea;
+  --text: #17231b;
+  --muted: #5f7165;
+  --border: #cfddd3;
+  --primary: #1f7a4d;
+  --primary-strong: #155c39;
+  --danger: #b83b4a;
+  --success: #107a54;
+  --warning: #9a6a10;
+  --violet: #6c5bbd;
+  --shadow: 0 14px 40px rgba(26, 66, 43, 0.09);
+}
+
+:root[data-theme="rose"] {
+  color-scheme: light;
+  --bg: #fbf6f8;
+  --surface: #ffffff;
+  --surface-strong: #f5e9ee;
+  --text: #261923;
+  --muted: #7b6874;
+  --border: #e7d4dc;
+  --primary: #b83265;
+  --primary-strong: #852349;
+  --danger: #c93535;
+  --success: #28785b;
+  --warning: #a86403;
+  --violet: #7c4cc7;
+  --shadow: 0 14px 40px rgba(88, 34, 57, 0.08);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -576,6 +627,10 @@ code {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
+}
+
+.settings-section-grid.single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .button {
@@ -1143,8 +1198,9 @@ code {
 }
 
 .event-pill {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.35rem;
   border: 1px solid var(--border);
   border-left: 4px solid var(--primary);
@@ -1168,6 +1224,15 @@ code {
   cursor: pointer;
 }
 
+.event-pill > button {
+  transition: padding-right 0.18s ease;
+}
+
+.event-pill:hover > button,
+.event-pill:focus-within > button {
+  padding-right: 3.2rem;
+}
+
 .event-pill span {
   display: block;
   color: var(--muted);
@@ -1175,8 +1240,21 @@ code {
 }
 
 .pill-actions {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
   display: flex;
   gap: 0.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: opacity 0.16s ease;
+}
+
+.event-pill:hover .pill-actions,
+.event-pill:focus-within .pill-actions {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .pill-actions button {
@@ -1184,8 +1262,16 @@ code {
   height: 24px;
   display: grid;
   place-items: center;
+  border: 1px solid var(--border);
   border-radius: 5px;
+  background: var(--surface-strong);
   color: var(--muted);
+}
+
+.pill-actions button:hover,
+.pill-actions button:focus-visible {
+  color: var(--text);
+  outline: none;
 }
 
 .event-card {
@@ -1323,6 +1409,62 @@ code {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.theme-card {
+  display: grid;
+  gap: 0.45rem;
+  min-height: 128px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.theme-card:hover,
+.theme-card:focus-visible,
+.theme-card.active {
+  border-color: color-mix(in srgb, var(--primary) 58%, var(--border));
+  background: color-mix(in srgb, var(--primary) 7%, var(--surface));
+  outline: none;
+}
+
+.theme-card:hover {
+  transform: translateY(-1px);
+}
+
+.theme-card strong {
+  font-size: 0.96rem;
+}
+
+.theme-card > span:last-child {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.theme-swatches i {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+
 .category-create-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 96px auto;
@@ -1428,6 +1570,10 @@ code {
 
   .calendar-month article {
     min-height: 104px;
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1622,6 +1768,10 @@ code {
   }
 
   .calendar-connection-card {
+    grid-template-columns: 1fr;
+  }
+
+  .theme-grid {
     grid-template-columns: 1fr;
   }
 
