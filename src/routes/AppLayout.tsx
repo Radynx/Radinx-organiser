@@ -132,8 +132,7 @@ export function AppLayout() {
               {user?.photoURL ? <img src={user.photoURL} alt="" /> : user?.displayName.slice(0, 1)}
             </div>
             <div>
-              <strong>{user?.displayName}</strong>
-              <span>{user?.email}</span>
+              <strong>{user?.displayName ?? 'Utente Radinx'}</strong>
             </div>
             <ChevronDown size={16} aria-hidden="true" />
           </button>

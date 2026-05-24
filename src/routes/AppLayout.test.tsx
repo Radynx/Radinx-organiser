@@ -66,6 +66,7 @@ describe('AppLayout', () => {
 
     await user.click(screen.getByRole('button', { name: /Codex User/ }))
 
+    expect(screen.queryByText('codex@example.com')).not.toBeInTheDocument()
     expect(screen.getByRole('menuitem', { name: 'Visualizza profilo' })).toBeInTheDocument()
     expect(screen.getByRole('menuitem', { name: 'Impostazioni account' })).toBeInTheDocument()
 
