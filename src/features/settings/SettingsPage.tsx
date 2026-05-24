@@ -278,7 +278,15 @@ export function SettingsPage() {
           <Skeleton lines={8} />
         </section>
       ) : (
-        <section className="settings-grid">
+        <div className="settings-sections">
+          <section className="settings-section" aria-labelledby="settings-organizer-title">
+            <header className="settings-section-header">
+              <div>
+                <h2 id="settings-organizer-title">Organizer</h2>
+                <p>Calendario, categorie e preferenze visive.</p>
+              </div>
+            </header>
+            <div className="settings-section-grid">
           <article className="panel">
             <header className="panel-header">
               <div>
@@ -379,6 +387,17 @@ export function SettingsPage() {
               ))}
             </div>
           </article>
+            </div>
+          </section>
+
+          <section className="settings-section" aria-labelledby="settings-account-title">
+            <header className="settings-section-header">
+              <div>
+                <h2 id="settings-account-title">Account</h2>
+                <p>Profilo, accesso e sicurezza.</p>
+              </div>
+            </header>
+            <div className="settings-section-grid">
 
           <article className="panel">
             <header className="panel-header">
@@ -469,6 +488,17 @@ export function SettingsPage() {
               <option value="dark">Scuro</option>
             </SelectField>
           </article>
+            </div>
+          </section>
+
+          <section className="settings-section" aria-labelledby="settings-integrations-title">
+            <header className="settings-section-header">
+              <div>
+                <h2 id="settings-integrations-title">Integrazioni</h2>
+                <p>Connessioni esterne attivate manualmente.</p>
+              </div>
+            </header>
+            <div className="settings-section-grid">
 
           <article className="panel">
             <header className="panel-header">
@@ -514,7 +544,9 @@ export function SettingsPage() {
               })}
             </div>
           </article>
-        </section>
+            </div>
+          </section>
+        </div>
       )}
 
       <Modal
