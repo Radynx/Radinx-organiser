@@ -15,6 +15,7 @@ vi.mock('@/contexts/AuthContext', () => ({
       displayName: 'Codex User',
       email: 'codex@example.com',
       photoURL: undefined,
+      createdAt: '2026-05-20T08:15:00',
       uid: 'user-1',
     },
   }),
@@ -63,7 +64,8 @@ describe('AppLayout', () => {
 
     expect(screen.getByText('Calendar view')).toBeInTheDocument()
 
-    expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('aria-expanded', 'false')
+    await user.click(screen.getByRole('button', { name: 'Lavoro' }))
 
     await user.click(screen.getByRole('link', { name: 'Cose da fare' }))
 
@@ -73,18 +75,17 @@ describe('AppLayout', () => {
 
     expect(screen.getByText('Completed view')).toBeInTheDocument()
 
-    expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('aria-expanded', 'false')
+    await user.click(screen.getByRole('button', { name: 'Impostazioni' }))
 
     await user.click(screen.getByRole('link', { name: 'Account' }))
 
     expect(screen.getByText('Settings view')).toBeInTheDocument()
   })
 
-  it('apre e chiude il gruppo lavoro nella sidebar', async () => {
+  it('apre e chiude il gruppo lavoro nella sidebar partendo compresso', async () => {
     const user = userEvent.setup()
     renderLayout()
-
-    await user.click(screen.getByRole('button', { name: 'Lavoro' }))
 
     expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByRole('link', { name: 'Cose da fare' })).not.toBeInTheDocument()
@@ -97,11 +98,9 @@ describe('AppLayout', () => {
     expect(screen.getByRole('link', { name: 'Cose fatte' })).toBeInTheDocument()
   })
 
-  it('apre e chiude il gruppo impostazioni nella sidebar', async () => {
+  it('apre e chiude il gruppo impostazioni nella sidebar partendo compresso', async () => {
     const user = userEvent.setup()
     renderLayout()
-
-    await user.click(screen.getByRole('button', { name: 'Impostazioni' }))
 
     expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByRole('link', { name: 'Organizer' })).not.toBeInTheDocument()
@@ -128,9 +127,20 @@ describe('AppLayout', () => {
     expect(window.localStorage.getItem('radinx-sidebar-collapsed')).toBe('true')
     expect(screen.getByRole('link', { name: 'Calendario' })).toHaveAttribute('title', 'Calendario')
     expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('title', 'Lavoro')
-    expect(screen.getByRole('link', { name: 'Cose da fare' })).toHaveAttribute('title', 'Cose da fare')
+    expect(screen.queryByRole('link', { name: 'Cose da fare' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('title', 'Impostazioni')
-    expect(screen.getByRole('link', { name: 'Account' })).toHaveAttribute('title', 'Account')
+    expect(screen.queryByRole('link', { name: 'Account' })).not.toBeInTheDocument()
+  })
+
+  it('mostra la data creazione account nel profilo', async () => {
+    const user = userEvent.setup()
+    renderLayout()
+
+    await user.click(screen.getByRole('button', { name: /Codex User/ }))
+    await user.click(screen.getByRole('menuitem', { name: 'Visualizza profilo' }))
+
+    expect(screen.getByRole('dialog')).toHaveTextContent('Account creato')
+    expect(screen.getByRole('dialog')).toHaveTextContent('20/05/2026 08:15')
   })
 
   it('apre il menu profilo e fa logout con redirect al login', async () => {

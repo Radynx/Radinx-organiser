@@ -17,7 +17,10 @@ export const todayISODate = () => format(new Date(), 'yyyy-MM-dd')
 
 const safeParseISO = (value: string) => {
   const parsed = parseISO(value)
-  return isValid(parsed) ? parsed : null
+  if (isValid(parsed)) return parsed
+
+  const fallback = new Date(value)
+  return isValid(fallback) ? fallback : null
 }
 
 export const formatDate = (isoDate: string) => {

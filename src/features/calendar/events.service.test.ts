@@ -19,6 +19,7 @@ vi.mock('@/lib/firebase', () => ({
 const eventInput = {
   title: '  Evento importante  ',
   description: '',
+  location: '  Officina  ',
   date: '2026-05-22',
   startTime: '09:00',
   endTime: '10:00',
@@ -39,6 +40,7 @@ describe('events service', () => {
       { type: 'collection', path: 'users/user-1/events' },
       expect.objectContaining({
         title: 'Evento importante',
+        location: 'Officina',
         notes: 'Nota',
         category: 'sport',
         priority: 'critical',

@@ -22,6 +22,7 @@ export interface CalendarEvent {
   id: string
   title: string
   description?: string
+  location?: string
   date: string
   startTime: string
   endTime: string
@@ -93,4 +94,5 @@ export interface AuthUser {
   email: string
   displayName: string
   photoURL?: string
+  createdAt?: string
 }

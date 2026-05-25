@@ -24,6 +24,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { useSettings } from '@/features/settings/useSettings'
 import { toUserMessage } from '@/lib/errors'
+import { formatDateTime } from '@/utils/date'
 
 const primaryNavItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -52,8 +53,8 @@ export function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [profileModalOpen, setProfileModalOpen] = useState(false)
-  const [workMenuOpen, setWorkMenuOpen] = useState(true)
-  const [settingsMenuOpen, setSettingsMenuOpen] = useState(true)
+  const [workMenuOpen, setWorkMenuOpen] = useState(false)
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const settingsMenuActive = location.pathname === '/settings'
   const currentSettingsHash = settingsMenuActive ? location.hash || '#settings-organizer' : ''
@@ -293,6 +294,10 @@ export function AppLayout() {
             <div>
               <dt>Email</dt>
               <dd>{user?.email}</dd>
+            </div>
+            <div>
+              <dt>Account creato</dt>
+              <dd>{user?.createdAt ? formatDateTime(user.createdAt) : 'Non disponibile'}</dd>
             </div>
           </dl>
         </div>

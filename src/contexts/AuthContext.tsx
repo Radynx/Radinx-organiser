@@ -62,6 +62,7 @@ const toAuthUser = (firebaseUser: User, profile?: Partial<UserProfile>): AuthUse
   email: profile?.email ?? firebaseUser.email ?? '',
   displayName: profile?.displayName ?? firebaseUser.displayName ?? 'Utente Radynx',
   photoURL: resolvePhotoURL(firebaseUser, profile),
+  createdAt: profile?.createdAt ?? firebaseUser.metadata?.creationTime,
 })
 
 const ensureCurrentUser = (currentUser: User | null) => {
@@ -171,8 +172,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: currentUser.email ?? '',
       displayName: cleanName,
       photoURL: user?.photoURL,
+      createdAt: user?.createdAt ?? currentUser.metadata?.creationTime,
     })
-  }, [user?.photoURL])
+  }, [user?.createdAt, user?.photoURL])
 
   const updateAccountEmail = useCallback(async (email: string) => {
     const { auth: firebaseAuth } = assertFirebase()
@@ -206,8 +208,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: currentUser.email ?? '',
       displayName: currentUser.displayName ?? 'Utente Radynx',
       photoURL,
+      createdAt: user?.createdAt ?? currentUser.metadata?.creationTime,
     })
-  }, [])
+  }, [user?.createdAt])
 
   const deleteProfilePhoto = useCallback(async () => {
     const { auth: firebaseAuth } = assertFirebase()
@@ -223,8 +226,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: currentUser.email ?? '',
       displayName: currentUser.displayName ?? 'Utente Radynx',
       photoURL: undefined,
+      createdAt: user?.createdAt ?? currentUser.metadata?.creationTime,
     })
-  }, [])
+  }, [user?.createdAt])
 
   const value = useMemo<AuthContextValue>(
     () => ({

@@ -15,6 +15,7 @@ const cleanEventInput = (input: EventFormData, deleteEmptyFields = false) =>
   withoutUndefinedFields({
     title: sanitizeText(input.title, 120),
     description: normalizeOptionalText(input.description, 800) ?? (deleteEmptyFields ? deleteField() : undefined),
+    location: normalizeOptionalText(input.location, 160) ?? (deleteEmptyFields ? deleteField() : undefined),
     date: input.date,
     startTime: input.startTime,
     endTime: input.endTime,
@@ -27,6 +28,7 @@ const toEvent = (id: string, data: Record<string, unknown>): CalendarEvent => ({
   id,
   title: sanitizeText(data.title, 120) || 'Evento senza titolo',
   description: normalizeOptionalText(data.description, 800),
+  location: normalizeOptionalText(data.location, 160),
   date: sanitizeText(data.date, 10),
   startTime: sanitizeText(data.startTime, 5),
   endTime: sanitizeText(data.endTime, 5),

@@ -5,6 +5,7 @@ export const eventSchema = z
   .object({
     title: z.string().trim().min(2, 'Inserisci un titolo.').max(120),
     description: z.string().trim().max(800).optional().or(z.literal('')),
+    location: z.string().trim().max(160).optional().or(z.literal('')),
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Inserisci una data valida.'),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Inserisci un orario valido.'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Inserisci un orario valido.'),

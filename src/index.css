@@ -463,7 +463,10 @@ code {
 .panel-header > div,
 .compact-row div,
 .connection-row,
-.calendar-connection-card div:first-child {
+.calendar-connection-card div:first-child,
+.event-stack,
+.event-pill,
+.event-pill button {
   min-width: 0;
 }
 
@@ -482,6 +485,12 @@ code {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.event-pill strong {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .avatar {
@@ -1178,6 +1187,7 @@ code {
 
 .calendar-column {
   min-height: 420px;
+  min-width: 0;
   padding: 0.65rem;
   cursor: pointer;
   transition:
@@ -1230,6 +1240,8 @@ code {
 
 .calendar-month article {
   min-height: 118px;
+  min-width: 0;
+  overflow: hidden;
   padding: 0.55rem;
   cursor: pointer;
   transition:
@@ -1257,11 +1269,31 @@ code {
   background: color-mix(in srgb, var(--primary) 7%, var(--surface));
 }
 
+.month-day-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.month-day-heading span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .event-pill {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 0.35rem;
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid var(--border);
   border-left: 4px solid var(--primary);
   border-radius: var(--radius);
@@ -1295,8 +1327,11 @@ code {
 
 .event-pill span {
   display: block;
+  overflow: hidden;
   color: var(--muted);
   font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pill-actions {
@@ -1360,6 +1395,17 @@ code {
 .task-card small,
 .completed-card p {
   color: var(--muted);
+}
+
+.event-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+}
+
+.event-location span {
+  overflow-wrap: anywhere;
 }
 
 .event-card-side {
@@ -1798,8 +1844,21 @@ code {
   }
 
   .calendar-month header {
+    align-items: flex-start;
     min-height: 28px;
     margin-bottom: 0.25rem;
+  }
+
+  .month-day-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+
+  .month-day-heading span {
+    max-width: 100%;
+    font-size: 0.56rem;
+    line-height: 1;
   }
 
   .calendar-month header button {
@@ -1979,6 +2038,7 @@ code {
   }
 
   .calendar-month header {
+    align-items: flex-start;
     min-height: 26px;
   }
 

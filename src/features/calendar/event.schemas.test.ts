@@ -6,6 +6,7 @@ describe('eventSchema', () => {
     const result = eventSchema.safeParse({
       title: 'Riunione',
       description: '',
+      location: 'Sala 2',
       date: '2026-05-22',
       startTime: '09:00',
       endTime: '10:00',

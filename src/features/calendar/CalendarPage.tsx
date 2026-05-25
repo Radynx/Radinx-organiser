@@ -7,7 +7,7 @@ import {
   subWeeks,
 } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { CalendarPlus, ChevronLeft, ChevronRight, Filter, Pencil, Trash2 } from 'lucide-react'
+import { CalendarPlus, ChevronLeft, ChevronRight, Filter, MapPin, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { Badge } from '@/components/Badge'
@@ -46,6 +46,7 @@ import { priorityLabels, priorityTone } from '@/utils/labels'
 const emptyEvent: EventFormData = {
   title: '',
   description: '',
+  location: '',
   date: todayISODate(),
   startTime: '09:00',
   endTime: '10:00',
@@ -57,6 +58,7 @@ const emptyEvent: EventFormData = {
 const toFormData = (event: CalendarEvent): EventFormData => ({
   title: event.title,
   description: event.description ?? '',
+  location: event.location ?? '',
   date: event.date,
   startTime: event.startTime,
   endTime: event.endTime,
@@ -109,7 +111,8 @@ export function CalendarPage() {
     return events.filter((event) => {
       const matchesCategory = categoryFilter === 'all' || event.category === categoryFilter
       const matchesPriority = priorityFilter === 'all' || event.priority === priorityFilter
-      const searchable = `${event.title} ${event.description ?? ''} ${event.notes ?? ''}`.toLowerCase()
+      const searchable =
+        `${event.title} ${event.description ?? ''} ${event.location ?? ''} ${event.notes ?? ''}`.toLowerCase()
       const matchesKeyword = !normalizedKeyword || searchable.includes(normalizedKeyword)
       return matchesCategory && matchesPriority && matchesKeyword
     })
@@ -339,6 +342,13 @@ export function CalendarPage() {
             <option value="high">Alta</option>
             <option value="critical">Critica</option>
           </SelectField>
+          <InputField
+            containerClassName="span-2"
+            error={errors.location?.message}
+            label="Posizione"
+            placeholder="Es. ufficio, indirizzo, sala o link"
+            {...register('location')}
+          />
           <TextareaField
             containerClassName="span-2"
             error={errors.description?.message}
@@ -543,9 +553,12 @@ function MonthView({
             tabIndex={0}
           >
             <header>
-              <button type="button" onClick={() => onCreate(date)}>
-                {format(date, 'd', { locale: it })}
-              </button>
+              <div className="month-day-heading">
+                <span>{format(date, 'EEE', { locale: it })}</span>
+                <button type="button" onClick={() => onCreate(date)}>
+                  {format(date, 'd', { locale: it })}
+                </button>
+              </div>
               {isToday ? <Badge tone="blue">Oggi</Badge> : null}
             </header>
             <div className="event-stack">
@@ -644,6 +657,12 @@ function EventCard({
           {event.startTime} - {event.endTime}
         </time>
         <h3>{event.title}</h3>
+        {event.location ? (
+          <p className="event-location">
+            <MapPin size={14} aria-hidden="true" />
+            <span>{event.location}</span>
+          </p>
+        ) : null}
         {event.description ? <p>{event.description}</p> : null}
         {event.notes ? <small>{event.notes}</small> : null}
       </div>

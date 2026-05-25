@@ -75,6 +75,7 @@ describe('CalendarPage', () => {
     render(<CalendarPage />)
 
     await user.click(screen.getByRole('button', { name: 'Mese' }))
+    expect(screen.getAllByText('lun')).not.toHaveLength(0)
     const monthCells = screen.getAllByRole('button', { name: /Crea evento per/i })
 
     await user.click(monthCells[10])
@@ -90,6 +91,7 @@ describe('CalendarPage', () => {
     const dialog = screen.getByRole('dialog')
 
     expect(within(dialog).getByRole('option', { name: 'Sport' })).toBeInTheDocument()
+    expect(within(dialog).getByLabelText('Posizione')).toBeInTheDocument()
   })
 
   it('non apre la creazione evento quando si clicca sull’icona elimina', () => {
