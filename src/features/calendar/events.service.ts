@@ -1,25 +1,27 @@
 import {
   addDoc,
   deleteDoc,
+  deleteField,
   onSnapshot,
   updateDoc,
   type Unsubscribe,
 } from 'firebase/firestore'
 import { eventDocRef, eventsCollectionRef } from '@/lib/firestorePaths'
 import type { CalendarEvent } from '@/types/domain'
-import { normalizeOptionalText, sanitizeText } from '@/utils/sanitize'
+import { normalizeOptionalText, sanitizeText, withoutUndefinedFields } from '@/utils/sanitize'
 import type { EventFormData } from '@/features/calendar/event.schemas'
 
-const cleanEventInput = (input: EventFormData) => ({
-  title: sanitizeText(input.title, 120),
-  description: normalizeOptionalText(input.description, 800),
-  date: input.date,
-  startTime: input.startTime,
-  endTime: input.endTime,
-  category: input.category,
-  priority: input.priority,
-  notes: normalizeOptionalText(input.notes, 1200),
-})
+const cleanEventInput = (input: EventFormData, deleteEmptyFields = false) =>
+  withoutUndefinedFields({
+    title: sanitizeText(input.title, 120),
+    description: normalizeOptionalText(input.description, 800) ?? (deleteEmptyFields ? deleteField() : undefined),
+    date: input.date,
+    startTime: input.startTime,
+    endTime: input.endTime,
+    category: input.category,
+    priority: input.priority,
+    notes: normalizeOptionalText(input.notes, 1200) ?? (deleteEmptyFields ? deleteField() : undefined),
+  })
 
 const toEvent = (id: string, data: Record<string, unknown>): CalendarEvent => ({
   id,
@@ -83,7 +85,7 @@ export const createEvent = async (userId: string, input: EventFormData) => {
 
 export const updateEvent = async (userId: string, eventId: string, input: EventFormData) => {
   await updateDoc(eventDocRef(userId, eventId), {
-    ...cleanEventInput(input),
+    ...cleanEventInput(input, true),
     updatedAt: new Date().toISOString(),
   })
 }

@@ -64,7 +64,7 @@ const themeOptions: Array<{
     value: 'midnight',
     label: 'Midnight',
     description: 'Blu profondo con accenti freddi.',
-    swatches: ['#0d1324', '#151f33', '#8aa2ff'],
+    swatches: ['#030712', '#07101f', '#7c9dff'],
   },
   {
     value: 'forest',

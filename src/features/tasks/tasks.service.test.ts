@@ -18,6 +18,7 @@ vi.mock('firebase/firestore', () => ({
   addDoc: vi.fn(),
   collection: vi.fn((_db, ...path: string[]) => ({ type: 'collection', path: path.join('/') })),
   deleteDoc: vi.fn(),
+  deleteField: vi.fn(() => ({ type: 'deleteField' })),
   doc: vi.fn((base: { path?: string }, ...path: string[]) => ({
     type: 'doc',
     path: [base.path, ...path].filter(Boolean).join('/'),
@@ -58,6 +59,23 @@ describe('tasks service', () => {
     expect(updateDoc).toHaveBeenCalledWith(
       { type: 'doc', path: 'users/user-1/tasks/task-1' },
       expect.objectContaining({ description: 'Preparare report' }),
+    )
+  })
+
+  it('non invia campi opzionali undefined a Firestore', async () => {
+    await createTask('user-1', { ...taskInput, dueAt: '', notes: '' })
+    await updateTask('user-1', 'task-1', { ...taskInput, dueAt: '', notes: '' })
+
+    const createdPayload = vi.mocked(addDoc).mock.calls[0]?.[1] as unknown as Record<string, unknown>
+    const updatedPayload = vi.mocked(updateDoc).mock.calls[0]?.[1] as unknown as Record<string, unknown>
+
+    expect(createdPayload).not.toHaveProperty('dueAt')
+    expect(createdPayload).not.toHaveProperty('notes')
+    expect(updatedPayload).toEqual(
+      expect.objectContaining({
+        dueAt: { type: 'deleteField' },
+        notes: { type: 'deleteField' },
+      }),
     )
   })
 

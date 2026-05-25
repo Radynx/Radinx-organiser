@@ -6,6 +6,7 @@ vi.mock('firebase/firestore', () => ({
   addDoc: vi.fn(),
   collection: vi.fn((_db, ...path: string[]) => ({ type: 'collection', path: path.join('/') })),
   deleteDoc: vi.fn(),
+  deleteField: vi.fn(() => ({ type: 'deleteField' })),
   doc: vi.fn((_db, ...path: string[]) => ({ type: 'doc', path: path.join('/') })),
   onSnapshot: vi.fn(),
   updateDoc: vi.fn(),
@@ -43,6 +44,7 @@ describe('events service', () => {
         priority: 'critical',
       }),
     )
+    expect(vi.mocked(addDoc).mock.calls[0]?.[1]).not.toHaveProperty('description')
   })
 
   it('modifica ed elimina eventi del solo utente', async () => {
@@ -51,7 +53,10 @@ describe('events service', () => {
 
     expect(updateDoc).toHaveBeenCalledWith(
       { type: 'doc', path: 'users/user-1/events/event-1' },
-      expect.objectContaining({ title: 'Evento importante' }),
+      expect.objectContaining({
+        description: { type: 'deleteField' },
+        title: 'Evento importante',
+      }),
     )
     expect(deleteDoc).toHaveBeenCalledWith({ type: 'doc', path: 'users/user-1/events/event-1' })
   })

@@ -14,5 +14,8 @@ export const normalizeOptionalText = (value: unknown, maxLength = 1000) => {
   return clean.length > 0 ? clean : undefined
 }
 
+export const withoutUndefinedFields = <T extends Record<string, unknown>>(value: T) =>
+  Object.fromEntries(Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined)) as T
+
 export const normalizeEmail = (value: unknown) =>
   sanitizeText(value, 254).toLowerCase()

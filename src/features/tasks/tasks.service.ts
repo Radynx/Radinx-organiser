@@ -1,6 +1,7 @@
 import {
   addDoc,
   deleteDoc,
+  deleteField,
   doc,
   onSnapshot,
   orderBy,
@@ -17,17 +18,18 @@ import {
   tasksCollectionRef,
 } from '@/lib/firestorePaths'
 import type { CompletedTask, WorkTask } from '@/types/domain'
-import { normalizeOptionalText, sanitizeText } from '@/utils/sanitize'
+import { normalizeOptionalText, sanitizeText, withoutUndefinedFields } from '@/utils/sanitize'
 import type { TaskFormData } from '@/features/tasks/task.schemas'
 
-const cleanTaskInput = (input: TaskFormData) => ({
-  title: sanitizeText(input.title, 120),
-  description: sanitizeText(input.description, 1000),
-  status: input.status,
-  priority: input.priority,
-  dueAt: normalizeOptionalText(input.dueAt, 40),
-  notes: normalizeOptionalText(input.notes, 1200),
-})
+const cleanTaskInput = (input: TaskFormData, deleteEmptyFields = false) =>
+  withoutUndefinedFields({
+    title: sanitizeText(input.title, 120),
+    description: sanitizeText(input.description, 1000),
+    status: input.status,
+    priority: input.priority,
+    dueAt: normalizeOptionalText(input.dueAt, 40) ?? (deleteEmptyFields ? deleteField() : undefined),
+    notes: normalizeOptionalText(input.notes, 1200) ?? (deleteEmptyFields ? deleteField() : undefined),
+  })
 
 const normalizePriority = (priority: unknown): WorkTask['priority'] => {
   if (priority === 'low' || priority === 'medium' || priority === 'high' || priority === 'critical') {
@@ -103,7 +105,7 @@ export const createTask = async (userId: string, input: TaskFormData) => {
 
 export const updateTask = async (userId: string, taskId: string, input: TaskFormData) => {
   await updateDoc(taskDocRef(userId, taskId), {
-    ...cleanTaskInput(input),
+    ...cleanTaskInput(input, true),
     status: input.status === 'completed' ? 'todo' : input.status,
     updatedAt: new Date().toISOString(),
   })
@@ -124,20 +126,20 @@ export const completeTask = async (userId: string, task: WorkTask) => {
   const batch = writeBatch(assertFirestore())
   const completedRef = doc(completedTasksCollectionRef(userId), task.id)
 
-  batch.set(completedRef, {
+  batch.set(completedRef, withoutUndefinedFields({
     ...task,
     status: 'completed',
     completedAt: now,
     elapsedMinutes,
     updatedAt: now,
-  })
+  }))
   batch.delete(taskDocRef(userId, task.id))
   await batch.commit()
 }
 
 export const restoreCompletedTask = async (userId: string, task: CompletedTask) => {
   const batch = writeBatch(assertFirestore())
-  batch.set(taskDocRef(userId, task.id), {
+  batch.set(taskDocRef(userId, task.id), withoutUndefinedFields({
     title: task.title,
     description: task.description,
     createdAt: task.createdAt,
@@ -146,7 +148,7 @@ export const restoreCompletedTask = async (userId: string, task: CompletedTask) 
     dueAt: task.dueAt,
     notes: task.notes,
     updatedAt: new Date().toISOString(),
-  })
+  }))
   batch.delete(completedTaskDocRef(userId, task.id))
   await batch.commit()
 }
