@@ -36,6 +36,8 @@ function renderLayout(initialPath = '/') {
         <Route path="/" element={<AppLayout />}>
           <Route index element={<div>Dashboard view</div>} />
           <Route path="calendar" element={<div>Calendar view</div>} />
+          <Route path="tasks" element={<div>Tasks view</div>} />
+          <Route path="completed" element={<div>Completed view</div>} />
           <Route path="settings" element={<div>Settings view</div>} />
         </Route>
       </Routes>
@@ -60,6 +62,16 @@ describe('AppLayout', () => {
     await user.click(screen.getByRole('link', { name: 'Calendario' }))
 
     expect(screen.getByText('Calendar view')).toBeInTheDocument()
+
+    expect(screen.getByText('Lavoro')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'Cose da fare' }))
+
+    expect(screen.getByText('Tasks view')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('link', { name: 'Cose fatte' }))
+
+    expect(screen.getByText('Completed view')).toBeInTheDocument()
   })
 
   it('minimizza il menu laterale mantenendo accessibili le sezioni', async () => {
@@ -71,6 +83,7 @@ describe('AppLayout', () => {
     expect(container.querySelector('.app-shell')).toHaveClass('sidebar-collapsed')
     expect(window.localStorage.getItem('radinx-sidebar-collapsed')).toBe('true')
     expect(screen.getByRole('link', { name: 'Calendario' })).toHaveAttribute('title', 'Calendario')
+    expect(screen.getByRole('link', { name: 'Cose da fare' })).toHaveAttribute('title', 'Cose da fare')
   })
 
   it('apre il menu profilo e fa logout con redirect al login', async () => {

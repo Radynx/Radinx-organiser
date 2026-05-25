@@ -7,6 +7,7 @@ import {
   ChevronsRight,
   CheckCircle2,
   LayoutDashboard,
+  ListTodo,
   LogOut,
   Settings,
   ShieldCheck,
@@ -21,11 +22,17 @@ import { useToast } from '@/contexts/ToastContext'
 import { useSettings } from '@/features/settings/useSettings'
 import { toUserMessage } from '@/lib/errors'
 
-const navItems = [
+const primaryNavItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/calendar', label: 'Calendario', icon: CalendarDays },
-  { to: '/tasks', label: 'Lavoro', icon: SquareKanban },
+]
+
+const workNavItems = [
+  { to: '/tasks', label: 'Cose da fare', icon: ListTodo },
   { to: '/completed', label: 'Cose fatte', icon: CheckCircle2 },
+]
+
+const settingsNavItems = [
   { to: '/settings', label: 'Impostazioni', icon: Settings },
 ]
 
@@ -127,7 +134,7 @@ export function AppLayout() {
           </button>
         </div>
         <nav className="sidebar-nav" aria-label="Navigazione principale">
-          {navItems.map((item) => {
+          {primaryNavItems.map((item) => {
             const Icon = item.icon
             return (
               <NavLink
@@ -136,6 +143,36 @@ export function AppLayout() {
                 to={item.to}
                 title={sidebarCollapsed ? item.label : undefined}
               >
+                <Icon size={18} aria-hidden="true" />
+                <span>{item.label}</span>
+              </NavLink>
+            )
+          })}
+          <section className="sidebar-nav-section" aria-labelledby="sidebar-work-title">
+            <div
+              className="sidebar-nav-section-title"
+              id="sidebar-work-title"
+              title={sidebarCollapsed ? 'Lavoro' : undefined}
+            >
+              <SquareKanban size={18} aria-hidden="true" />
+              <span>Lavoro</span>
+            </div>
+            <div className="sidebar-subnav">
+              {workNavItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <NavLink key={item.to} to={item.to} title={sidebarCollapsed ? item.label : undefined}>
+                    <Icon size={18} aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </NavLink>
+                )
+              })}
+            </div>
+          </section>
+          {settingsNavItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <NavLink key={item.to} to={item.to} title={sidebarCollapsed ? item.label : undefined}>
                 <Icon size={18} aria-hidden="true" />
                 <span>{item.label}</span>
               </NavLink>
@@ -153,7 +190,7 @@ export function AppLayout() {
             <div className="avatar">
               {user?.photoURL ? <img src={user.photoURL} alt="" /> : user?.displayName.slice(0, 1)}
             </div>
-            <div>
+            <div className="sidebar-user-label">
               <strong>{user?.displayName ?? 'Utente Radynx'}</strong>
             </div>
             <ChevronDown size={16} aria-hidden="true" />

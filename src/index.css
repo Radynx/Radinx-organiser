@@ -244,7 +244,8 @@ code {
   gap: 0.35rem;
 }
 
-.sidebar-nav a {
+.sidebar-nav a,
+.sidebar-nav-section-title {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -255,6 +256,29 @@ code {
   transition:
     background 0.2s ease,
     color 0.2s ease;
+}
+
+.sidebar-nav-section {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.sidebar-nav-section-title {
+  min-height: 32px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sidebar-subnav {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 0.65rem;
+}
+
+.sidebar-subnav a {
+  min-height: 36px;
 }
 
 .sidebar-nav a:hover,
@@ -268,7 +292,9 @@ code {
 }
 
 .sidebar-collapsed .sidebar-brand div,
+.sidebar-collapsed .sidebar-nav-section-title,
 .sidebar-collapsed .sidebar-nav a span,
+.sidebar-collapsed .sidebar-user-label,
 .sidebar-collapsed .sidebar-user strong,
 .sidebar-collapsed .sidebar-user svg {
   display: none;
@@ -281,6 +307,10 @@ code {
 .sidebar-collapsed .sidebar-nav a {
   justify-content: center;
   padding-inline: 0;
+}
+
+.sidebar-collapsed .sidebar-subnav {
+  padding-left: 0;
 }
 
 .sidebar-user-menu {
@@ -1614,11 +1644,15 @@ code {
   }
 
   .sidebar-brand div,
+  .sidebar-nav-section-title,
   .sidebar-nav a span,
+  .sidebar-user-label,
   .sidebar-user strong,
   .sidebar-user svg,
   .sidebar-collapsed .sidebar-brand div,
+  .sidebar-collapsed .sidebar-nav-section-title,
   .sidebar-collapsed .sidebar-nav a span,
+  .sidebar-collapsed .sidebar-user-label,
   .sidebar-collapsed .sidebar-user strong,
   .sidebar-collapsed .sidebar-user svg {
     display: none;
@@ -1629,6 +1663,11 @@ code {
     justify-content: center;
     min-height: 44px;
     padding-inline: 0;
+  }
+
+  .sidebar-subnav,
+  .sidebar-collapsed .sidebar-subnav {
+    padding-left: 0;
   }
 
   .sidebar-user,
