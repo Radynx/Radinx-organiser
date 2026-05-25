@@ -24,7 +24,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { useSettings } from '@/features/settings/useSettings'
 import { toUserMessage } from '@/lib/errors'
-import { formatDateTime } from '@/utils/date'
+import { formatDate, formatDateTime } from '@/utils/date'
 
 const primaryNavItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -280,7 +280,7 @@ export function AppLayout() {
         open={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
         title="Profilo"
-        description="Dati dell'account attualmente autenticato."
+        description="I tuoi dati"
       >
         <div className="profile-summary">
           <div className="avatar large">
@@ -294,6 +294,10 @@ export function AppLayout() {
             <div>
               <dt>Email</dt>
               <dd>{user?.email}</dd>
+            </div>
+            <div>
+              <dt>Compleanno</dt>
+              <dd>{user?.birthday ? formatDate(user.birthday) : 'Non impostato'}</dd>
             </div>
             <div>
               <dt>Account creato</dt>

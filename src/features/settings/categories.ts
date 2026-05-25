@@ -17,6 +17,13 @@ export const otherCategory: CalendarCategory = {
   system: true,
 }
 
+export const birthdaysCategory: CalendarCategory = {
+  id: 'birthdays',
+  label: 'Compleanni',
+  color: '#f97316',
+  system: true,
+}
+
 export const getDefaultCategories = (colors: CalendarColors): CalendarCategory[] => [
   ...baseCategoryDefinitions.map((category) => ({
     id: category.id,
@@ -24,6 +31,7 @@ export const getDefaultCategories = (colors: CalendarColors): CalendarCategory[]
     color: colors[category.colorKey],
     system: true,
   })),
+  birthdaysCategory,
   otherCategory,
 ]
 

@@ -161,4 +161,21 @@ describe('AuthContext', () => {
       { merge: true },
     )
   })
+
+  it('salva il compleanno nel profilo utente', async () => {
+    const getAuthApi = renderAuthProbe()
+    const authApi = await getAuthApi()
+
+    await act(async () => {
+      await authApi.updateBirthday('1995-07-14')
+    })
+
+    expect(setDoc).toHaveBeenCalledWith(
+      { path: 'users/user-1' },
+      expect.objectContaining({
+        birthday: '1995-07-14',
+      }),
+      { merge: true },
+    )
+  })
 })

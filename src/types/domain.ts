@@ -1,5 +1,5 @@
 export const priorities = ['low', 'medium', 'high', 'critical'] as const
-export const eventCategories = ['personal', 'work', 'important', 'other'] as const
+export const eventCategories = ['personal', 'work', 'important', 'birthdays', 'other'] as const
 export const taskStatuses = ['todo', 'in-progress', 'completed'] as const
 export const calendarProviders = ['google', 'apple'] as const
 export const themePreferences = ['system', 'light', 'dark', 'midnight', 'forest', 'rose'] as const
@@ -84,6 +84,7 @@ export interface UserProfile {
   uid: string
   displayName: string
   email: string
+  birthday?: string | null
   photoURL: string | null
   createdAt: string
   updatedAt: string
@@ -95,4 +96,5 @@ export interface AuthUser {
   displayName: string
   photoURL?: string
   createdAt?: string
+  birthday?: string
 }

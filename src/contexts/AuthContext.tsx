@@ -35,6 +35,7 @@ interface AuthContextValue {
   logout: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
   updateDisplayName: (displayName: string) => Promise<void>
+  updateBirthday: (birthday: string) => Promise<void>
   updateAccountEmail: (email: string) => Promise<void>
   changePassword: (password: string) => Promise<void>
   uploadProfilePhoto: (file: File) => Promise<void>
@@ -63,6 +64,7 @@ const toAuthUser = (firebaseUser: User, profile?: Partial<UserProfile>): AuthUse
   displayName: profile?.displayName ?? firebaseUser.displayName ?? 'Utente Radynx',
   photoURL: resolvePhotoURL(firebaseUser, profile),
   createdAt: profile?.createdAt ?? firebaseUser.metadata?.creationTime,
+  birthday: typeof profile?.birthday === 'string' ? profile.birthday : undefined,
 })
 
 const ensureCurrentUser = (currentUser: User | null) => {
@@ -173,8 +175,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName: cleanName,
       photoURL: user?.photoURL,
       createdAt: user?.createdAt ?? currentUser.metadata?.creationTime,
+      birthday: user?.birthday,
     })
-  }, [user?.createdAt, user?.photoURL])
+  }, [user?.birthday, user?.createdAt, user?.photoURL])
+
+  const updateBirthday = useCallback(async (birthday: string) => {
+    const { auth: firebaseAuth } = assertFirebase()
+    const currentUser = ensureCurrentUser(firebaseAuth.currentUser)
+    const cleanBirthday = birthday.trim() || null
+    await setDoc(
+      userDocRef(currentUser.uid),
+      { birthday: cleanBirthday, updatedAt: new Date().toISOString() },
+      { merge: true },
+    )
+    setUser({
+      uid: currentUser.uid,
+      email: currentUser.email ?? '',
+      displayName: user?.displayName ?? currentUser.displayName ?? 'Utente Radynx',
+      photoURL: user?.photoURL,
+      createdAt: user?.createdAt ?? currentUser.metadata?.creationTime,
+      birthday: cleanBirthday ?? undefined,
+    })
+  }, [user?.createdAt, user?.displayName, user?.photoURL])
 
   const updateAccountEmail = useCallback(async (email: string) => {
     const { auth: firebaseAuth } = assertFirebase()
@@ -209,8 +231,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName: currentUser.displayName ?? 'Utente Radynx',
       photoURL,
       createdAt: user?.createdAt ?? currentUser.metadata?.creationTime,
+      birthday: user?.birthday,
     })
-  }, [user?.createdAt])
+  }, [user?.birthday, user?.createdAt])
 
   const deleteProfilePhoto = useCallback(async () => {
     const { auth: firebaseAuth } = assertFirebase()
@@ -227,8 +250,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName: currentUser.displayName ?? 'Utente Radynx',
       photoURL: undefined,
       createdAt: user?.createdAt ?? currentUser.metadata?.creationTime,
+      birthday: user?.birthday,
     })
-  }, [user?.createdAt])
+  }, [user?.birthday, user?.createdAt])
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -240,6 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       resetPassword,
       updateDisplayName,
+      updateBirthday,
       updateAccountEmail,
       changePassword,
       uploadProfilePhoto,
@@ -253,6 +278,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       resetPassword,
       updateDisplayName,
+      updateBirthday,
       updateAccountEmail,
       changePassword,
       uploadProfilePhoto,

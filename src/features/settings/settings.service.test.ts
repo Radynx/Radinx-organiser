@@ -57,6 +57,7 @@ describe('settings service', () => {
       { type: 'doc', path: 'users/user-1/settings/preferences' },
       expect.objectContaining({
         categories: expect.arrayContaining([
+          expect.objectContaining({ id: 'birthdays', label: 'Compleanni', system: true }),
           expect.objectContaining({ id: 'sport', label: 'Sport', color: '#22c55e' }),
         ]),
       }),

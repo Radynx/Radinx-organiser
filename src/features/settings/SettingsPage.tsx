@@ -95,6 +95,7 @@ export function SettingsPage() {
     changePassword,
     deleteProfilePhoto,
     updateAccountEmail,
+    updateBirthday,
     updateDisplayName,
     uploadProfilePhoto,
     user,
@@ -120,6 +121,7 @@ export function SettingsPage() {
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
+      birthday: user?.birthday ?? '',
       displayName: user?.displayName ?? '',
       email: user?.email ?? '',
     },
@@ -138,10 +140,11 @@ export function SettingsPage() {
 
   useEffect(() => {
     profileForm.reset({
+      birthday: user?.birthday ?? '',
       displayName: user?.displayName ?? '',
       email: user?.email ?? '',
     })
-  }, [profileForm, user?.displayName, user?.email])
+  }, [profileForm, user?.birthday, user?.displayName, user?.email])
 
   useEffect(() => {
     if (loading || !location.hash) return
@@ -217,6 +220,9 @@ export function SettingsPage() {
     try {
       if (data.displayName !== user?.displayName) {
         await updateDisplayName(data.displayName)
+      }
+      if ((data.birthday || '') !== (user?.birthday ?? '')) {
+        await updateBirthday(data.birthday ?? '')
       }
       if (data.email !== user?.email) {
         await updateAccountEmail(data.email)
@@ -568,6 +574,12 @@ export function SettingsPage() {
                 label="Email"
                 type="email"
                 {...profileForm.register('email')}
+              />
+              <InputField
+                error={profileForm.formState.errors.birthday?.message}
+                label="Compleanno"
+                type="date"
+                {...profileForm.register('birthday')}
               />
               <Button loading={savingProfile} type="submit" icon={<Save size={16} />}>
                 Salva profilo

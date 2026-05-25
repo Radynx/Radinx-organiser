@@ -18,6 +18,7 @@ export const categoryLabels: Record<string, string> = {
   personal: 'Personale',
   work: 'Lavoro',
   important: 'Importante',
+  birthdays: 'Compleanni',
   other: 'Altro',
 }
 

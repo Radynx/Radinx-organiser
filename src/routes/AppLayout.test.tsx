@@ -16,6 +16,7 @@ vi.mock('@/contexts/AuthContext', () => ({
       email: 'codex@example.com',
       photoURL: undefined,
       createdAt: '2026-05-20T08:15:00',
+      birthday: '1995-07-14',
       uid: 'user-1',
     },
   }),
@@ -139,6 +140,10 @@ describe('AppLayout', () => {
     await user.click(screen.getByRole('button', { name: /Codex User/ }))
     await user.click(screen.getByRole('menuitem', { name: 'Visualizza profilo' }))
 
+    expect(screen.queryByText("Dati dell'account attualmente autenticato.")).not.toBeInTheDocument()
+    expect(screen.getByText('I tuoi dati')).toBeInTheDocument()
+    expect(screen.getByRole('dialog')).toHaveTextContent('Compleanno')
+    expect(screen.getByRole('dialog')).toHaveTextContent('14 luglio 1995')
     expect(screen.getByRole('dialog')).toHaveTextContent('Account creato')
     expect(screen.getByRole('dialog')).toHaveTextContent('20/05/2026 08:15')
   })
