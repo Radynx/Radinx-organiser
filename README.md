@@ -146,18 +146,35 @@ Sono ammessi JPG, PNG e WebP sotto 3 MB; prima del salvataggio l'avatar viene co
 
 La connessione non parte mai automaticamente. L’utente deve aprire Impostazioni e premere “Connetti”.
 
-Per completare l’integrazione reale:
+Per abilitare l’accesso con account Google:
 
 1. Crea un OAuth Client ID in Google Cloud Console.
-2. Aggiungi gli origin autorizzati della web app.
-3. Inserisci il valore in `VITE_GOOGLE_CALENDAR_CLIENT_ID`.
-4. Implementa il flusso OAuth autorizzato e la sync in una Cloud Function o backend sicuro.
+2. Usa il tipo “Applicazione web”.
+3. Aggiungi gli origin autorizzati:
+   - `https://radynx.github.io`
+   - `http://localhost:5174` per sviluppo locale
+4. Abilita la Google Calendar API nel progetto Google Cloud.
+5. Inserisci il Client ID in `VITE_GOOGLE_CALENDAR_CLIENT_ID`.
 
-Senza configurazione OAuth, l’app salva lo stato “Da configurare” e non effettua chiamate API.
+L’app usa Google Identity Services nel browser per aprire la finestra ufficiale Google e ottenere un access token solo dopo click esplicito dell’utente. Il token non viene salvato in Firestore.
+
+Per GitHub Pages aggiungi `VITE_GOOGLE_CALENDAR_CLIENT_ID` in:
+
+```text
+GitHub > Settings > Secrets and variables > Actions > Variables
+```
+
+Senza questa variabile, l’app mostra “Da configurare” e non effettua chiamate API.
 
 ## Apple Calendar
 
-Apple Calendar non offre un flusso browser equivalente a Google OAuth per CalDAV personale. Per una sync reale serve un backend sicuro che gestisca CalDAV e credenziali/app-specific password fuori dal client. Questa parte resta predisposta ma non viene attivata automaticamente.
+Apple Calendar non offre un flusso browser equivalente a Google OAuth per CalDAV personale. Per una sync reale serve un backend sicuro che gestisca CalDAV e credenziali/app-specific password fuori dal client.
+
+Ogni utente deve usare la propria password specifica per app Apple, ma quella password non deve mai essere inserita nella web app statica o salvata da codice frontend. Va usata solo in un backend privato con storage cifrato e consenso esplicito.
+
+Se una password specifica per app è stata condivisa accidentalmente, revocala dall’Apple Account e generane una nuova.
+
+Questa parte resta predisposta ma non viene attivata automaticamente.
 
 L’app espone già flag manuale, stato, messaggi d’errore e disconnessione. Se il flag è disattivato non vengono eseguite chiamate, letture o scritture esterne.
 

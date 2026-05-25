@@ -67,6 +67,14 @@ jobs:
           done
           exit "$missing"
 
+      - name: Check optional calendar environment
+        run: |
+          if [ -z "$VITE_GOOGLE_CALENDAR_CLIENT_ID" ]; then
+            echo "::notice title=Google Calendar::VITE_GOOGLE_CALENDAR_CLIENT_ID is empty. Google Calendar will show the setup warning until you add the OAuth Client ID."
+          else
+            echo "::notice title=Google Calendar::VITE_GOOGLE_CALENDAR_CLIENT_ID is configured."
+          fi
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

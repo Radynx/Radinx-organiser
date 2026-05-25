@@ -1666,6 +1666,13 @@ code {
   gap: 0.55rem;
 }
 
+.integration-warning {
+  border: 1px solid color-mix(in srgb, var(--warning) 42%, var(--border));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  padding: 0.75rem;
+}
+
 @media (max-width: 1180px) {
   .content {
     width: 100%;

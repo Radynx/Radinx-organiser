@@ -14,6 +14,7 @@ import { useToast } from '@/contexts/ToastContext'
 import { passwordUpdateSchema, type PasswordUpdateFormData } from '@/features/auth/auth.schemas'
 import { cleanCategoryColor, cleanCategoryLabel, createCategoryId } from '@/features/settings/categories'
 import { defaultSettings } from '@/features/settings/defaultSettings'
+import { authorizeGoogleCalendar, getGoogleCalendarClientId } from '@/features/settings/googleCalendarAuth'
 import {
   colorSettingsSchema,
   profileSchema,
@@ -22,6 +23,7 @@ import {
 } from '@/features/settings/settings.schemas'
 import {
   disconnectCalendar,
+  saveCalendarConnection,
   saveColorSettings,
   saveCategorySettings,
   saveThemePreference,
@@ -36,6 +38,13 @@ const providerLabels: Record<CalendarProvider, string> = {
   google: 'Google Calendar',
   apple: 'Apple Calendar',
 }
+
+const createConnectedCalendar = () => ({
+  enabled: true,
+  status: 'connected' as const,
+  lastSyncAt: new Date().toISOString(),
+  error: null,
+})
 
 const themeOptions: Array<{
   value: ThemePreference
@@ -278,6 +287,19 @@ export function SettingsPage() {
     if (!userId || !calendarWizard) return
     setCalendarLoading(calendarWizard)
     try {
+      if (calendarWizard === 'google') {
+        await authorizeGoogleCalendar(getGoogleCalendarClientId())
+        const connection = await saveCalendarConnection(userId, 'google', createConnectedCalendar())
+        notify({
+          title: providerLabels.google,
+          description:
+            'Account Google autorizzato. La connessione resta manuale e non sincronizza dati senza una tua azione.',
+          variant: connection.status === 'connected' ? 'success' : 'warning',
+        })
+        setCalendarWizard(null)
+        return
+      }
+
       const connection = await startCalendarConnection(userId, calendarWizard)
       notify({
         title: providerLabels[calendarWizard],
@@ -657,6 +679,10 @@ export function SettingsPage() {
               Apple Calendar non usa un OAuth pubblico come Google Calendar. Per collegarlo in modo
               sicuro serve un backend CalDAV: Radynx Organizer non chiederà mai la password iCloud nel browser.
             </p>
+            <p>
+              Se hai già creato una password specifica per app, non inserirla qui: usala solo nel backend
+              CalDAV privato e rigenerala se è stata condivisa.
+            </p>
             <ol className="integration-steps">
               <li>Attiva l’autenticazione a due fattori sull’account Apple.</li>
               <li>Da account.apple.com crea una password specifica per Radynx Organizer.</li>
@@ -689,8 +715,14 @@ export function SettingsPage() {
               eseguite chiamate API, letture o scritture verso calendari esterni.
             </p>
             <p>
-              Google Calendar richiede client OAuth e autorizzazioni configurate nel progetto Google Cloud.
+              Si aprirà la finestra Google ufficiale per scegliere il tuo account e autorizzare
+              Radynx Organizer con i permessi calendario.
             </p>
+            {!getGoogleCalendarClientId() ? (
+              <p className="integration-warning">
+                Prima devi configurare VITE_GOOGLE_CALENDAR_CLIENT_ID nelle variabili del sito.
+              </p>
+            ) : null}
           </div>
         )}
         <footer className="modal-actions">

@@ -2,6 +2,7 @@ import { onSnapshot, setDoc } from 'firebase/firestore'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   disconnectCalendar,
+  saveCalendarConnection,
   subscribeToSettings,
   saveCategorySettings,
   saveColorSettings,
@@ -127,6 +128,26 @@ describe('settings service', () => {
         'calendarConnections.google': expect.objectContaining({
           enabled: true,
           status: 'needs_configuration',
+        }),
+      }),
+      { merge: true },
+    )
+  })
+
+  it('salva una connessione calendario per il singolo utente', async () => {
+    await saveCalendarConnection('user-1', 'google', {
+      enabled: true,
+      status: 'connected',
+      lastSyncAt: '2026-05-25T12:00:00.000Z',
+      error: null,
+    })
+
+    expect(setDoc).toHaveBeenCalledWith(
+      { type: 'doc', path: 'users/user-1/settings/preferences' },
+      expect.objectContaining({
+        'calendarConnections.google': expect.objectContaining({
+          enabled: true,
+          status: 'connected',
         }),
       }),
       { merge: true },

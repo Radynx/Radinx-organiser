@@ -90,6 +90,15 @@ const connectionPatch = (provider: CalendarProvider, connection: CalendarConnect
   updatedAt: new Date().toISOString(),
 })
 
+export const saveCalendarConnection = async (
+  userId: string,
+  provider: CalendarProvider,
+  connection: CalendarConnection,
+) => {
+  await setDoc(userSettingsRef(userId), connectionPatch(provider, connection), { merge: true })
+  return connection
+}
+
 export const startCalendarConnection = async (userId: string, provider: CalendarProvider) => {
   const googleClientId = import.meta.env.VITE_GOOGLE_CALENDAR_CLIENT_ID
   const now = new Date().toISOString()
@@ -111,11 +120,7 @@ export const startCalendarConnection = async (userId: string, provider: Calendar
               : 'Apple Calendar richiede un backend/proxy CalDAV sicuro. Per sicurezza nessuna credenziale iCloud viene salvata nel browser.',
         }
 
-  await setDoc(userSettingsRef(userId), connectionPatch(provider, { ...connection, lastSyncAt: now }), {
-    merge: true,
-  })
-
-  return connection
+  return saveCalendarConnection(userId, provider, { ...connection, lastSyncAt: now })
 }
 
 export const disconnectCalendar = async (userId: string, provider: CalendarProvider) => {
