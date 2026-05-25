@@ -11,6 +11,7 @@ const defaultColors = {
 export const defaultSettings: UserSettings = {
   colors: defaultColors,
   categories: getDefaultCategories(defaultColors),
+  hiddenCategoryIds: [],
   theme: 'system',
   calendarConnections: {
     google: {

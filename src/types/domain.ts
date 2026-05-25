@@ -75,6 +75,7 @@ export interface CalendarColors {
 export interface UserSettings {
   colors: CalendarColors
   categories: CalendarCategory[]
+  hiddenCategoryIds: string[]
   theme: ThemePreference
   calendarConnections: Record<CalendarProvider, CalendarConnection>
   updatedAt: string

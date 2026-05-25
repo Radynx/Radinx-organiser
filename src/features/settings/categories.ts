@@ -35,6 +35,25 @@ export const getDefaultCategories = (colors: CalendarColors): CalendarCategory[]
   otherCategory,
 ]
 
+const defaultCategoryIds = new Set(getDefaultCategories({
+  personal: '#000000',
+  work: '#000000',
+  important: '#000000',
+  completed: '#000000',
+}).map((category) => category.id))
+
+export const normalizeHiddenCategoryIds = (ids: unknown) => {
+  if (!Array.isArray(ids)) return []
+
+  return Array.from(
+    new Set(
+      ids
+        .map((id) => sanitizeText(id, 80))
+        .filter((id) => categoryIdPattern.test(id) && defaultCategoryIds.has(id)),
+    ),
+  )
+}
+
 export const cleanCategoryLabel = (label: string) => sanitizeText(label, 40)
 
 export const cleanCategoryColor = (color: string) => (colorPattern.test(color) ? color : '#64748b')
@@ -64,9 +83,10 @@ export const createCategoryId = (label: string, existingIds: string[]) => {
 export const normalizeCategories = (
   rawCategories: unknown,
   colors: CalendarColors,
+  rawHiddenCategoryIds: unknown = [],
 ): CalendarCategory[] => {
-  const defaults = getDefaultCategories(colors)
-  const defaultIds = new Set(defaults.map((category) => category.id))
+  const hiddenCategoryIds = new Set(normalizeHiddenCategoryIds(rawHiddenCategoryIds))
+  const defaults = getDefaultCategories(colors).filter((category) => !hiddenCategoryIds.has(category.id))
   const byId = new Map(defaults.map((category) => [category.id, category]))
 
   if (Array.isArray(rawCategories)) {
@@ -78,14 +98,15 @@ export const normalizeCategories = (
       const label = cleanCategoryLabel(candidate.label ?? '')
 
       if (!categoryIdPattern.test(id) || !label) return
+      if (hiddenCategoryIds.has(id)) return
 
       const defaultCategory = byId.get(id)
 
       byId.set(id, {
         id,
         label,
-        color: defaultCategory?.color ?? cleanCategoryColor(candidate.color ?? ''),
-        system: defaultIds.has(id) ? true : Boolean(candidate.system),
+        color: cleanCategoryColor(candidate.color ?? defaultCategory?.color ?? ''),
+        system: defaultCategoryIds.has(id) ? true : Boolean(candidate.system),
       })
     })
   }

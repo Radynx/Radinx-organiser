@@ -8,7 +8,7 @@ import {
   type ThemePreference,
   type UserSettings,
 } from '@/types/domain'
-import { normalizeCategories } from '@/features/settings/categories'
+import { normalizeCategories, normalizeHiddenCategoryIds } from '@/features/settings/categories'
 import { defaultSettings } from '@/features/settings/defaultSettings'
 
 const isThemePreference = (theme: unknown): theme is ThemePreference =>
@@ -24,7 +24,8 @@ const mergeSettings = (data: Partial<UserSettings> | undefined): UserSettings =>
     ...defaultSettings,
     ...data,
     colors,
-    categories: normalizeCategories(data?.categories, colors),
+    categories: normalizeCategories(data?.categories, colors, data?.hiddenCategoryIds),
+    hiddenCategoryIds: normalizeHiddenCategoryIds(data?.hiddenCategoryIds),
     theme: isThemePreference(data?.theme) ? data.theme : defaultSettings.theme,
     calendarConnections: {
       google: {
@@ -63,11 +64,18 @@ export const saveColorSettings = async (userId: string, colors: UserSettings['co
   )
 }
 
-export const saveCategorySettings = async (userId: string, categories: CalendarCategory[]) => {
+export const saveCategorySettings = async (
+  userId: string,
+  categories: CalendarCategory[],
+  hiddenCategoryIds: string[] = [],
+) => {
+  const normalizedHiddenCategoryIds = normalizeHiddenCategoryIds(hiddenCategoryIds)
+
   await setDoc(
     userSettingsRef(userId),
     {
-      categories: normalizeCategories(categories, defaultSettings.colors),
+      categories: normalizeCategories(categories, defaultSettings.colors, normalizedHiddenCategoryIds),
+      hiddenCategoryIds: normalizedHiddenCategoryIds,
       updatedAt: new Date().toISOString(),
     },
     { merge: true },

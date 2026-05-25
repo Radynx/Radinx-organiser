@@ -1601,6 +1601,36 @@ code {
   white-space: nowrap;
 }
 
+.category-color-input {
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.category-color-input:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.category-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.category-color-input::-webkit-color-swatch {
+  border: 0;
+  border-radius: 50%;
+}
+
+.category-color-input::-moz-color-swatch {
+  border: 0;
+  border-radius: 50%;
+}
+
 .category-swatch {
   width: 18px;
   height: 18px;
@@ -1955,6 +1985,20 @@ code {
 
   .category-row {
     align-items: stretch;
+  }
+
+  .category-color-input {
+    width: 100%;
+    height: 44px;
+    border-radius: var(--radius);
+  }
+
+  .category-color-input::-webkit-color-swatch {
+    border-radius: var(--radius);
+  }
+
+  .category-color-input::-moz-color-swatch {
+    border-radius: var(--radius);
   }
 
   .category-swatch {

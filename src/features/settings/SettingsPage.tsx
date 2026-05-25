@@ -13,18 +13,14 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { passwordUpdateSchema, type PasswordUpdateFormData } from '@/features/auth/auth.schemas'
 import { cleanCategoryColor, cleanCategoryLabel, createCategoryId } from '@/features/settings/categories'
-import { defaultSettings } from '@/features/settings/defaultSettings'
 import { authorizeGoogleCalendar, getGoogleCalendarClientId } from '@/features/settings/googleCalendarAuth'
 import {
-  colorSettingsSchema,
   profileSchema,
-  type ColorSettingsFormData,
   type ProfileFormData,
 } from '@/features/settings/settings.schemas'
 import {
   disconnectCalendar,
   saveCalendarConnection,
-  saveColorSettings,
   saveCategorySettings,
   saveThemePreference,
   startCalendarConnection,
@@ -104,7 +100,6 @@ export function SettingsPage() {
   const { notify } = useToast()
   const { error, loading, settings } = useSettings(userId)
   const location = useLocation()
-  const [savingColors, setSavingColors] = useState(false)
   const [savingCategories, setSavingCategories] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
@@ -114,10 +109,6 @@ export function SettingsPage() {
   const [categoryName, setCategoryName] = useState('')
   const [categoryColor, setCategoryColor] = useState('#0ea5e9')
 
-  const colorForm = useForm<ColorSettingsFormData>({
-    resolver: zodResolver(colorSettingsSchema),
-    defaultValues: defaultSettings.colors,
-  })
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -135,10 +126,6 @@ export function SettingsPage() {
   })
 
   useEffect(() => {
-    colorForm.reset(settings.colors)
-  }, [colorForm, settings.colors])
-
-  useEffect(() => {
     profileForm.reset({
       birthday: user?.birthday ?? '',
       displayName: user?.displayName ?? '',
@@ -152,21 +139,6 @@ export function SettingsPage() {
     const target = document.getElementById(location.hash.slice(1))
     target?.scrollIntoView({ block: 'start' })
   }, [loading, location.hash])
-
-  const previewColors = colorForm.watch()
-
-  const onSaveColors = colorForm.handleSubmit(async (data) => {
-    if (!userId) return
-    setSavingColors(true)
-    try {
-      await saveColorSettings(userId, data)
-      notify({ title: 'Colori salvati', variant: 'success' })
-    } catch (error) {
-      notify({ title: 'Salvataggio non riuscito', description: toUserMessage(error), variant: 'error' })
-    } finally {
-      setSavingColors(false)
-    }
-  })
 
   const handleAddCategory = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -188,7 +160,7 @@ export function SettingsPage() {
         system: false,
       }
 
-      await saveCategorySettings(userId, [...settings.categories, nextCategory])
+      await saveCategorySettings(userId, [...settings.categories, nextCategory], settings.hiddenCategoryIds)
       setCategoryName('')
       setCategoryColor('#0ea5e9')
       notify({ title: 'Categoria creata', variant: 'success' })
@@ -201,15 +173,41 @@ export function SettingsPage() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     if (!userId) return
+    const category = settings.categories.find((candidate) => candidate.id === categoryId)
     setSavingCategories(true)
     try {
+      const hiddenCategoryIds =
+        category?.system && !settings.hiddenCategoryIds.includes(categoryId)
+          ? [...settings.hiddenCategoryIds, categoryId]
+          : settings.hiddenCategoryIds
+
       await saveCategorySettings(
         userId,
-        settings.categories.filter((category) => category.system || category.id !== categoryId),
+        settings.categories.filter((category) => category.id !== categoryId),
+        hiddenCategoryIds,
       )
       notify({ title: 'Categoria eliminata', variant: 'success' })
     } catch (error) {
       notify({ title: 'Categoria non eliminata', description: toUserMessage(error), variant: 'error' })
+    } finally {
+      setSavingCategories(false)
+    }
+  }
+
+  const handleUpdateCategoryColor = async (categoryId: string, color: string) => {
+    if (!userId) return
+    setSavingCategories(true)
+    try {
+      await saveCategorySettings(
+        userId,
+        settings.categories.map((category) =>
+          category.id === categoryId ? { ...category, color: cleanCategoryColor(color) } : category,
+        ),
+        settings.hiddenCategoryIds,
+      )
+      notify({ title: 'Colore categoria salvato', variant: 'success' })
+    } catch (error) {
+      notify({ title: 'Colore non salvato', description: toUserMessage(error), variant: 'error' })
     } finally {
       setSavingCategories(false)
     }
@@ -373,107 +371,60 @@ export function SettingsPage() {
                 <p>Calendario, categorie e preferenze visive.</p>
               </div>
             </header>
-            <div className="settings-section-grid">
-          <article className="panel">
-            <header className="panel-header">
-              <div>
-                <h2>Colori calendario</h2>
-                <p>Personalizzazione eventi e completati.</p>
-              </div>
-              <Palette size={20} aria-hidden="true" />
-            </header>
-            <form className="form-grid" onSubmit={onSaveColors}>
-              <InputField
-                error={colorForm.formState.errors.personal?.message}
-                label="Eventi personali"
-                type="color"
-                {...colorForm.register('personal')}
-              />
-              <InputField
-                error={colorForm.formState.errors.work?.message}
-                label="Eventi lavoro"
-                type="color"
-                {...colorForm.register('work')}
-              />
-              <InputField
-                error={colorForm.formState.errors.important?.message}
-                label="Eventi importanti"
-                type="color"
-                {...colorForm.register('important')}
-              />
-              <InputField
-                error={colorForm.formState.errors.completed?.message}
-                label="Task completate"
-                type="color"
-                {...colorForm.register('completed')}
-              />
-              <div className="color-preview span-2">
-                {Object.entries(previewColors).map(([key, color]) => (
-                  <span key={key} style={{ backgroundColor: color }}>
-                    {key}
-                  </span>
-                ))}
-              </div>
-              <footer className="modal-actions span-2">
-                <Button loading={savingColors} type="submit" icon={<Save size={16} />}>
-                  Salva colori
-                </Button>
-              </footer>
-            </form>
-          </article>
-
-          <article className="panel">
-            <header className="panel-header">
-              <div>
-                <h2>Categorie calendario</h2>
-                <p>Crea categorie personali con colore dedicato.</p>
-              </div>
-              <Tags size={20} aria-hidden="true" />
-            </header>
-            <form className="category-create-form" onSubmit={handleAddCategory}>
-              <InputField
-                label="Nome categoria"
-                maxLength={40}
-                value={categoryName}
-                onChange={(event) => setCategoryName(event.target.value)}
-              />
-              <InputField
-                label="Colore"
-                type="color"
-                value={categoryColor}
-                onChange={(event) => setCategoryColor(event.target.value)}
-              />
-              <Button loading={savingCategories} type="submit" icon={<Plus size={16} />}>
-                Aggiungi
-              </Button>
-            </form>
-            <div className="category-list">
-              {settings.categories.map((category) => (
-                <div className="category-row" key={category.id}>
-                  <span
-                    aria-hidden="true"
-                    className="category-swatch"
-                    style={{ backgroundColor: category.color }}
+            <div className="settings-section-grid single">
+              <article className="panel">
+                <header className="panel-header">
+                  <div>
+                    <h2>Categorie e colori</h2>
+                    <p>Crea, colora ed elimina le categorie del calendario.</p>
+                  </div>
+                  <Tags size={20} aria-hidden="true" />
+                </header>
+                <form className="category-create-form" onSubmit={handleAddCategory}>
+                  <InputField
+                    label="Nome categoria"
+                    maxLength={40}
+                    value={categoryName}
+                    onChange={(event) => setCategoryName(event.target.value)}
                   />
-                  <strong>{category.label}</strong>
-                  <Badge tone={category.system ? 'neutral' : 'blue'}>
-                    {category.system ? 'Base' : 'Mia'}
-                  </Badge>
-                  {!category.system ? (
-                    <Button
-                      disabled={savingCategories}
-                      size="sm"
-                      variant="ghost"
-                      icon={<Trash2 size={16} />}
-                      onClick={() => handleDeleteCategory(category.id)}
-                    >
-                      Elimina
-                    </Button>
-                  ) : null}
+                  <InputField
+                    label="Colore"
+                    type="color"
+                    value={categoryColor}
+                    onChange={(event) => setCategoryColor(event.target.value)}
+                  />
+                  <Button loading={savingCategories} type="submit" icon={<Plus size={16} />}>
+                    Aggiungi
+                  </Button>
+                </form>
+                <div className="category-list">
+                  {settings.categories.map((category) => (
+                    <div className="category-row" key={category.id}>
+                      <input
+                        aria-label={`Colore ${category.label}`}
+                        className="category-color-input"
+                        disabled={savingCategories}
+                        type="color"
+                        value={category.color}
+                        onChange={(event) => handleUpdateCategoryColor(category.id, event.target.value)}
+                      />
+                      <strong>{category.label}</strong>
+                      <Badge tone={category.system ? 'neutral' : 'blue'}>
+                        {category.system ? 'Base' : 'Mia'}
+                      </Badge>
+                      <Button
+                        disabled={savingCategories}
+                        size="sm"
+                        variant="ghost"
+                        icon={<Trash2 size={16} />}
+                        onClick={() => handleDeleteCategory(category.id)}
+                      >
+                        Elimina
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </article>
+              </article>
             </div>
           </section>
 

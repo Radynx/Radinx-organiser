@@ -75,6 +75,31 @@ describe('settings service', () => {
     )
   })
 
+  it('salva colori modificati e rimozioni delle categorie base', async () => {
+    const categories = [
+      { id: 'personal', label: 'Personale', color: '#123456', system: true },
+      { id: 'sport', label: 'Sport', color: '#22c55e', system: false },
+    ]
+
+    await saveCategorySettings('user-1', categories, ['work'])
+
+    const payload = vi.mocked(setDoc).mock.calls[0]?.[1] as {
+      categories: Array<{ id: string; color: string; system?: boolean }>
+      hiddenCategoryIds: string[]
+    }
+
+    expect(payload.hiddenCategoryIds).toEqual(['work'])
+    expect(payload.categories).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'personal', color: '#123456', system: true }),
+        expect.objectContaining({ id: 'sport', color: '#22c55e', system: false }),
+      ]),
+    )
+    expect(payload.categories).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'work' })]),
+    )
+  })
+
   it('legge categorie salvate solo dal documento settings dell’utente richiesto', () => {
     const onData = vi.fn()
     const unsubscribe = vi.fn()
