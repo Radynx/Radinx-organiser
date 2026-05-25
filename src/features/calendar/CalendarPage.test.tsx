@@ -1,10 +1,11 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { addDays } from 'date-fns'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { defaultSettings } from '@/features/settings/defaultSettings'
 import type { CalendarEvent } from '@/types/domain'
-import { todayISODate } from '@/utils/date'
+import { formatDate, toISODate, todayISODate } from '@/utils/date'
 
 const settingsState = vi.hoisted(() => ({ current: undefined as unknown }))
 const eventsState = vi.hoisted(() => ({ current: [] as CalendarEvent[] }))
@@ -68,6 +69,17 @@ describe('CalendarPage', () => {
     await user.click(weekCells[0])
 
     expect(screen.getByRole('dialog')).toHaveTextContent('Nuovo evento')
+  })
+
+  it('nella vista giorno le frecce avanzano di un solo giorno', async () => {
+    const user = userEvent.setup()
+    const today = new Date()
+    render(<CalendarPage />)
+
+    await user.click(screen.getByRole('button', { name: 'Giorno' }))
+    await user.click(screen.getByRole('button', { name: 'Periodo successivo' }))
+
+    expect(screen.getAllByText(formatDate(toISODate(addDays(today, 1))))).not.toHaveLength(0)
   })
 
   it('apre la creazione evento cliccando tutto il riquadro del mese', async () => {

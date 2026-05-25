@@ -284,6 +284,8 @@ export function SettingsPage() {
         description:
           connection.status === 'ready_for_oauth'
             ? 'Connessione pronta per il flusso OAuth autorizzato.'
+            : calendarWizard === 'apple'
+              ? 'Guida Apple Calendar salvata. Completa CalDAV con un backend sicuro prima della sincronizzazione.'
             : connection.error ?? 'Configurazione richiesta.',
         variant: connection.status === 'ready_for_oauth' ? 'success' : 'warning',
       })
@@ -649,17 +651,48 @@ export function SettingsPage() {
         onClose={() => setCalendarWizard(null)}
         title={calendarWizard ? `Connetti ${providerLabels[calendarWizard]}` : 'Connetti calendario'}
       >
-        <div className="wizard-copy">
-          <p>
-            La procedura parte solo dopo la conferma. Se il flag resta disattivato non vengono
-            eseguite chiamate API, letture o scritture verso calendari esterni.
-          </p>
-          <p>
-            {calendarWizard === 'google'
-              ? 'Google Calendar richiede client OAuth e autorizzazioni configurate nel progetto Google Cloud.'
-              : 'Apple Calendar richiede un backend sicuro per CalDAV; le credenziali iCloud non devono essere salvate nel browser.'}
-          </p>
-        </div>
+        {calendarWizard === 'apple' ? (
+          <div className="wizard-copy">
+            <p>
+              Apple Calendar non usa un OAuth pubblico come Google Calendar. Per collegarlo in modo
+              sicuro serve un backend CalDAV: Radynx Organizer non chiederà mai la password iCloud nel browser.
+            </p>
+            <ol className="integration-steps">
+              <li>Attiva l’autenticazione a due fattori sull’account Apple.</li>
+              <li>Da account.apple.com crea una password specifica per Radynx Organizer.</li>
+              <li>Collega il backend CalDAV a iCloud Calendar usando quella password dedicata.</li>
+              <li>Inserisci nel progetto solo l’endpoint sicuro del backend, non la password Apple.</li>
+            </ol>
+            <div className="integration-actions">
+              <a
+                className="button button-secondary button-sm"
+                href="https://account.apple.com/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Apri Apple Account
+              </a>
+              <a
+                className="button button-secondary button-sm"
+                href="https://support.apple.com/en-gb/102654"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Password specifiche
+              </a>
+            </div>
+          </div>
+        ) : (
+          <div className="wizard-copy">
+            <p>
+              La procedura parte solo dopo la conferma. Se il flag resta disattivato non vengono
+              eseguite chiamate API, letture o scritture verso calendari esterni.
+            </p>
+            <p>
+              Google Calendar richiede client OAuth e autorizzazioni configurate nel progetto Google Cloud.
+            </p>
+          </div>
+        )}
         <footer className="modal-actions">
           <Button variant="secondary" onClick={() => setCalendarWizard(null)}>
             Annulla
@@ -668,7 +701,7 @@ export function SettingsPage() {
             loading={calendarWizard ? calendarLoading === calendarWizard : false}
             onClick={handleStartCalendarConnection}
           >
-            Conferma connessione
+            {calendarWizard === 'apple' ? 'Salva guida Apple' : 'Conferma connessione'}
           </Button>
         </footer>
       </Modal>

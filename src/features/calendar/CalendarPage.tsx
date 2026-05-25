@@ -1,8 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  addDays,
   addMonths,
   addWeeks,
   format,
+  subDays,
   subMonths,
   subWeeks,
 } from 'date-fns'
@@ -177,11 +179,19 @@ export function CalendarPage() {
   }
 
   const goBack = () => {
-    setCursorDate((current) => (view === 'month' ? subMonths(current, 1) : subWeeks(current, 1)))
+    setCursorDate((current) => {
+      if (view === 'day') return subDays(current, 1)
+      if (view === 'month') return subMonths(current, 1)
+      return subWeeks(current, 1)
+    })
   }
 
   const goNext = () => {
-    setCursorDate((current) => (view === 'month' ? addMonths(current, 1) : addWeeks(current, 1)))
+    setCursorDate((current) => {
+      if (view === 'day') return addDays(current, 1)
+      if (view === 'month') return addMonths(current, 1)
+      return addWeeks(current, 1)
+    })
   }
 
   return (

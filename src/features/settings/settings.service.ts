@@ -108,7 +108,7 @@ export const startCalendarConnection = async (userId: string, provider: Calendar
           error:
             provider === 'google'
               ? 'Configura VITE_GOOGLE_CALENDAR_CLIENT_ID e un flusso OAuth autorizzato.'
-              : 'Apple Calendar richiede un backend sicuro CalDAV; nessuna credenziale iCloud viene salvata nel browser.',
+              : 'Apple Calendar richiede un backend/proxy CalDAV sicuro. Per sicurezza nessuna credenziale iCloud viene salvata nel browser.',
         }
 
   await setDoc(userSettingsRef(userId), connectionPatch(provider, { ...connection, lastSyncAt: now }), {
