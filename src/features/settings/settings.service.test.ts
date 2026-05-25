@@ -1,7 +1,8 @@
-import { setDoc } from 'firebase/firestore'
+import { onSnapshot, setDoc } from 'firebase/firestore'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   disconnectCalendar,
+  subscribeToSettings,
   saveCategorySettings,
   saveColorSettings,
   saveThemePreference,
@@ -42,12 +43,16 @@ describe('settings service', () => {
   })
 
   it('salva categorie calendario personalizzate', async () => {
-    await saveCategorySettings('user-1', [
+    const categories = [
       { id: 'personal', label: 'Personale', color: '#111111', system: true },
       { id: 'sport', label: 'Sport', color: '#22c55e', system: false },
-    ])
+    ]
 
-    expect(setDoc).toHaveBeenCalledWith(
+    await saveCategorySettings('user-1', categories)
+    await saveCategorySettings('user-2', categories)
+
+    expect(setDoc).toHaveBeenNthCalledWith(
+      1,
       { type: 'doc', path: 'users/user-1/settings/preferences' },
       expect.objectContaining({
         categories: expect.arrayContaining([
@@ -56,6 +61,50 @@ describe('settings service', () => {
       }),
       { merge: true },
     )
+    expect(setDoc).toHaveBeenNthCalledWith(
+      2,
+      { type: 'doc', path: 'users/user-2/settings/preferences' },
+      expect.objectContaining({
+        categories: expect.arrayContaining([
+          expect.objectContaining({ id: 'sport', label: 'Sport', color: '#22c55e' }),
+        ]),
+      }),
+      { merge: true },
+    )
+  })
+
+  it('legge categorie salvate solo dal documento settings dell’utente richiesto', () => {
+    const onData = vi.fn()
+    const unsubscribe = vi.fn()
+
+    vi.mocked(onSnapshot).mockImplementation(((_ref: unknown, next: (snapshot: unknown) => void) => {
+      next({
+        data: () => ({
+          categories: [
+            { id: 'sport', label: 'Sport', color: '#22c55e', system: false },
+          ],
+          updatedAt: '2026-05-25T00:00:00.000Z',
+        }),
+      } as never)
+
+      return unsubscribe
+    }) as never)
+
+    const result = subscribeToSettings('user-1', onData, vi.fn())
+
+    expect(onSnapshot).toHaveBeenCalledWith(
+      { type: 'doc', path: 'users/user-1/settings/preferences' },
+      expect.any(Function),
+      expect.any(Function),
+    )
+    expect(onData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categories: expect.arrayContaining([
+          expect.objectContaining({ id: 'sport', label: 'Sport', color: '#22c55e' }),
+        ]),
+      }),
+    )
+    expect(result).toBe(unsubscribe)
   })
 
   it('salva un tema predefinito', async () => {
