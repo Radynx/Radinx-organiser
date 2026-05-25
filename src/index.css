@@ -245,14 +245,18 @@ code {
 }
 
 .sidebar-nav a,
-.sidebar-nav-section-title {
+.sidebar-nav-section-toggle {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  width: 100%;
   min-height: 40px;
+  border: 0;
   border-radius: var(--radius);
+  background: transparent;
   padding: 0.55rem 0.65rem;
   color: var(--muted);
+  cursor: pointer;
   transition:
     background 0.2s ease,
     color 0.2s ease;
@@ -263,12 +267,21 @@ code {
   gap: 0.25rem;
 }
 
-.sidebar-nav-section-title {
+.sidebar-nav-section-toggle {
   min-height: 32px;
-  color: var(--muted);
   font-size: 0.78rem;
   font-weight: 900;
+  text-align: left;
   text-transform: uppercase;
+}
+
+.sidebar-section-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-nav-section-toggle[aria-expanded="false"] .sidebar-section-chevron {
+  transform: rotate(-90deg);
 }
 
 .sidebar-subnav {
@@ -282,9 +295,12 @@ code {
 }
 
 .sidebar-nav a:hover,
-.sidebar-nav a.active {
+.sidebar-nav a.active,
+.sidebar-nav-section-toggle:hover,
+.sidebar-nav-section-toggle:focus-visible {
   background: var(--surface-strong);
   color: var(--text);
+  outline: none;
 }
 
 .sidebar-collapsed .sidebar-brand {
@@ -292,7 +308,8 @@ code {
 }
 
 .sidebar-collapsed .sidebar-brand div,
-.sidebar-collapsed .sidebar-nav-section-title,
+.sidebar-collapsed .sidebar-nav-section-toggle span,
+.sidebar-collapsed .sidebar-section-chevron,
 .sidebar-collapsed .sidebar-nav a span,
 .sidebar-collapsed .sidebar-user-label,
 .sidebar-collapsed .sidebar-user strong,
@@ -305,6 +322,11 @@ code {
 }
 
 .sidebar-collapsed .sidebar-nav a {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.sidebar-collapsed .sidebar-nav-section-toggle {
   justify-content: center;
   padding-inline: 0;
 }
@@ -1644,13 +1666,15 @@ code {
   }
 
   .sidebar-brand div,
-  .sidebar-nav-section-title,
+  .sidebar-nav-section-toggle span,
+  .sidebar-section-chevron,
   .sidebar-nav a span,
   .sidebar-user-label,
   .sidebar-user strong,
   .sidebar-user svg,
   .sidebar-collapsed .sidebar-brand div,
-  .sidebar-collapsed .sidebar-nav-section-title,
+  .sidebar-collapsed .sidebar-nav-section-toggle span,
+  .sidebar-collapsed .sidebar-section-chevron,
   .sidebar-collapsed .sidebar-nav a span,
   .sidebar-collapsed .sidebar-user-label,
   .sidebar-collapsed .sidebar-user strong,
@@ -1660,6 +1684,13 @@ code {
 
   .sidebar-nav a,
   .sidebar-collapsed .sidebar-nav a {
+    justify-content: center;
+    min-height: 44px;
+    padding-inline: 0;
+  }
+
+  .sidebar-nav-section-toggle,
+  .sidebar-collapsed .sidebar-nav-section-toggle {
     justify-content: center;
     min-height: 44px;
     padding-inline: 0;

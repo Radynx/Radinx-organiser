@@ -46,6 +46,7 @@ export function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [profileModalOpen, setProfileModalOpen] = useState(false)
+  const [workMenuOpen, setWorkMenuOpen] = useState(true)
   const [loggingOut, setLoggingOut] = useState(false)
 
   useEffect(() => {
@@ -149,25 +150,32 @@ export function AppLayout() {
             )
           })}
           <section className="sidebar-nav-section" aria-labelledby="sidebar-work-title">
-            <div
-              className="sidebar-nav-section-title"
-              id="sidebar-work-title"
+            <button
+              aria-controls="sidebar-work-nav"
+              aria-expanded={workMenuOpen}
+              aria-label="Lavoro"
+              className="sidebar-nav-section-toggle"
+              type="button"
               title={sidebarCollapsed ? 'Lavoro' : undefined}
+              onClick={() => setWorkMenuOpen((open) => !open)}
             >
               <SquareKanban size={18} aria-hidden="true" />
-              <span>Lavoro</span>
-            </div>
-            <div className="sidebar-subnav">
-              {workNavItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <NavLink key={item.to} to={item.to} title={sidebarCollapsed ? item.label : undefined}>
-                    <Icon size={18} aria-hidden="true" />
-                    <span>{item.label}</span>
-                  </NavLink>
-                )
-              })}
-            </div>
+              <span id="sidebar-work-title">Lavoro</span>
+              <ChevronDown className="sidebar-section-chevron" size={16} aria-hidden="true" />
+            </button>
+            {workMenuOpen ? (
+              <div className="sidebar-subnav" id="sidebar-work-nav">
+                {workNavItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <NavLink key={item.to} to={item.to} title={sidebarCollapsed ? item.label : undefined}>
+                      <Icon size={18} aria-hidden="true" />
+                      <span>{item.label}</span>
+                    </NavLink>
+                  )
+                })}
+              </div>
+            ) : null}
           </section>
           {settingsNavItems.map((item) => {
             const Icon = item.icon
@@ -227,15 +235,6 @@ export function AppLayout() {
             <strong>Radynx Organizer</strong>
             <span>Workspace personale</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<LogOut size={16} />}
-            loading={loggingOut}
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>
         </header>
         <main className="content">
           <Outlet />

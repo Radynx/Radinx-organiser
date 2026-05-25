@@ -63,7 +63,7 @@ describe('AppLayout', () => {
 
     expect(screen.getByText('Calendar view')).toBeInTheDocument()
 
-    expect(screen.getByText('Lavoro')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('aria-expanded', 'true')
 
     await user.click(screen.getByRole('link', { name: 'Cose da fare' }))
 
@@ -72,6 +72,23 @@ describe('AppLayout', () => {
     await user.click(screen.getByRole('link', { name: 'Cose fatte' }))
 
     expect(screen.getByText('Completed view')).toBeInTheDocument()
+  })
+
+  it('apre e chiude il gruppo lavoro nella sidebar', async () => {
+    const user = userEvent.setup()
+    renderLayout()
+
+    await user.click(screen.getByRole('button', { name: 'Lavoro' }))
+
+    expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('link', { name: 'Cose da fare' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Cose fatte' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Lavoro' }))
+
+    expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('link', { name: 'Cose da fare' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Cose fatte' })).toBeInTheDocument()
   })
 
   it('minimizza il menu laterale mantenendo accessibili le sezioni', async () => {
@@ -83,6 +100,7 @@ describe('AppLayout', () => {
     expect(container.querySelector('.app-shell')).toHaveClass('sidebar-collapsed')
     expect(window.localStorage.getItem('radinx-sidebar-collapsed')).toBe('true')
     expect(screen.getByRole('link', { name: 'Calendario' })).toHaveAttribute('title', 'Calendario')
+    expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('title', 'Lavoro')
     expect(screen.getByRole('link', { name: 'Cose da fare' })).toHaveAttribute('title', 'Cose da fare')
   })
 
