@@ -72,6 +72,12 @@ describe('AppLayout', () => {
     await user.click(screen.getByRole('link', { name: 'Cose fatte' }))
 
     expect(screen.getByText('Completed view')).toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('aria-expanded', 'true')
+
+    await user.click(screen.getByRole('link', { name: 'Account' }))
+
+    expect(screen.getByText('Settings view')).toBeInTheDocument()
   })
 
   it('apre e chiude il gruppo lavoro nella sidebar', async () => {
@@ -91,6 +97,27 @@ describe('AppLayout', () => {
     expect(screen.getByRole('link', { name: 'Cose fatte' })).toBeInTheDocument()
   })
 
+  it('apre e chiude il gruppo impostazioni nella sidebar', async () => {
+    const user = userEvent.setup()
+    renderLayout()
+
+    await user.click(screen.getByRole('button', { name: 'Impostazioni' }))
+
+    expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('link', { name: 'Organizer' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Aspetto' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Account' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Integrazioni' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Impostazioni' }))
+
+    expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('link', { name: 'Organizer' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Aspetto' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Account' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Integrazioni' })).toBeInTheDocument()
+  })
+
   it('minimizza il menu laterale mantenendo accessibili le sezioni', async () => {
     const user = userEvent.setup()
     const { container } = renderLayout()
@@ -102,6 +129,8 @@ describe('AppLayout', () => {
     expect(screen.getByRole('link', { name: 'Calendario' })).toHaveAttribute('title', 'Calendario')
     expect(screen.getByRole('button', { name: 'Lavoro' })).toHaveAttribute('title', 'Lavoro')
     expect(screen.getByRole('link', { name: 'Cose da fare' })).toHaveAttribute('title', 'Cose da fare')
+    expect(screen.getByRole('button', { name: 'Impostazioni' })).toHaveAttribute('title', 'Impostazioni')
+    expect(screen.getByRole('link', { name: 'Account' })).toHaveAttribute('title', 'Account')
   })
 
   it('apre il menu profilo e fa logout con redirect al login', async () => {

@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera, KeyRound, Palette, PlugZap, Plus, Save, Shield, Tags, Trash2, Upload } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useForm } from 'react-hook-form'
+import { useLocation } from 'react-router-dom'
 import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
 import { InputField } from '@/components/FormField'
@@ -92,6 +93,7 @@ export function SettingsPage() {
   const userId = user?.uid
   const { notify } = useToast()
   const { error, loading, settings } = useSettings(userId)
+  const location = useLocation()
   const [savingColors, setSavingColors] = useState(false)
   const [savingCategories, setSavingCategories] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
@@ -131,6 +133,13 @@ export function SettingsPage() {
       email: user?.email ?? '',
     })
   }, [profileForm, user?.displayName, user?.email])
+
+  useEffect(() => {
+    if (loading || !location.hash) return
+
+    const target = document.getElementById(location.hash.slice(1))
+    target?.scrollIntoView({ block: 'start' })
+  }, [loading, location.hash])
 
   const previewColors = colorForm.watch()
 
@@ -323,7 +332,11 @@ export function SettingsPage() {
         </section>
       ) : (
         <div className="settings-sections">
-          <section className="settings-section" aria-labelledby="settings-organizer-title">
+          <section
+            className="settings-section"
+            id="settings-organizer"
+            aria-labelledby="settings-organizer-title"
+          >
             <header className="settings-section-header">
               <div>
                 <h2 id="settings-organizer-title">Organizer</h2>
@@ -434,7 +447,11 @@ export function SettingsPage() {
             </div>
           </section>
 
-          <section className="settings-section" aria-labelledby="settings-appearance-title">
+          <section
+            className="settings-section"
+            id="settings-appearance"
+            aria-labelledby="settings-appearance-title"
+          >
             <header className="settings-section-header">
               <div>
                 <h2 id="settings-appearance-title">Aspetto</h2>
@@ -473,7 +490,7 @@ export function SettingsPage() {
             </div>
           </section>
 
-          <section className="settings-section" aria-labelledby="settings-account-title">
+          <section className="settings-section" id="settings-account" aria-labelledby="settings-account-title">
             <header className="settings-section-header">
               <div>
                 <h2 id="settings-account-title">Account</h2>
@@ -565,7 +582,11 @@ export function SettingsPage() {
             </div>
           </section>
 
-          <section className="settings-section" aria-labelledby="settings-integrations-title">
+          <section
+            className="settings-section"
+            id="settings-integrations"
+            aria-labelledby="settings-integrations-title"
+          >
             <header className="settings-section-header">
               <div>
                 <h2 id="settings-integrations-title">Integrazioni</h2>

@@ -9,9 +9,12 @@ import {
   LayoutDashboard,
   ListTodo,
   LogOut,
+  Palette,
+  PlugZap,
   Settings,
   ShieldCheck,
   SquareKanban,
+  Tags,
   UserRound,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -33,7 +36,10 @@ const workNavItems = [
 ]
 
 const settingsNavItems = [
-  { to: '/settings', label: 'Impostazioni', icon: Settings },
+  { to: '/settings#settings-organizer', hash: '#settings-organizer', label: 'Organizer', icon: Tags },
+  { to: '/settings#settings-appearance', hash: '#settings-appearance', label: 'Aspetto', icon: Palette },
+  { to: '/settings#settings-account', hash: '#settings-account', label: 'Account', icon: UserRound },
+  { to: '/settings#settings-integrations', hash: '#settings-integrations', label: 'Integrazioni', icon: PlugZap },
 ]
 
 export function AppLayout() {
@@ -47,7 +53,10 @@ export function AppLayout() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [profileModalOpen, setProfileModalOpen] = useState(false)
   const [workMenuOpen, setWorkMenuOpen] = useState(true)
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(true)
   const [loggingOut, setLoggingOut] = useState(false)
+  const settingsMenuActive = location.pathname === '/settings'
+  const currentSettingsHash = settingsMenuActive ? location.hash || '#settings-organizer' : ''
 
   useEffect(() => {
     const storedPreference = window.localStorage.getItem('radinx-sidebar-collapsed')
@@ -177,15 +186,41 @@ export function AppLayout() {
               </div>
             ) : null}
           </section>
-          {settingsNavItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <NavLink key={item.to} to={item.to} title={sidebarCollapsed ? item.label : undefined}>
-                <Icon size={18} aria-hidden="true" />
-                <span>{item.label}</span>
-              </NavLink>
-            )
-          })}
+          <section className="sidebar-nav-section" aria-labelledby="sidebar-settings-title">
+            <button
+              aria-controls="sidebar-settings-nav"
+              aria-expanded={settingsMenuOpen}
+              aria-label="Impostazioni"
+              className={clsx('sidebar-nav-section-toggle', settingsMenuActive && 'active')}
+              type="button"
+              title={sidebarCollapsed ? 'Impostazioni' : undefined}
+              onClick={() => setSettingsMenuOpen((open) => !open)}
+            >
+              <Settings size={18} aria-hidden="true" />
+              <span id="sidebar-settings-title">Impostazioni</span>
+              <ChevronDown className="sidebar-section-chevron" size={16} aria-hidden="true" />
+            </button>
+            {settingsMenuOpen ? (
+              <div className="sidebar-subnav" id="sidebar-settings-nav">
+                {settingsNavItems.map((item) => {
+                  const Icon = item.icon
+                  const isActive = currentSettingsHash === item.hash
+                  return (
+                    <Link
+                      aria-current={isActive ? 'page' : undefined}
+                      className={isActive ? 'active' : undefined}
+                      key={item.to}
+                      title={sidebarCollapsed ? item.label : undefined}
+                      to={item.to}
+                    >
+                      <Icon size={18} aria-hidden="true" />
+                      <span>{item.label}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : null}
+          </section>
         </nav>
         <div className="sidebar-user-menu" ref={profileMenuRef}>
           <button

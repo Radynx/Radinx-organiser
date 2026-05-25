@@ -296,6 +296,7 @@ code {
 
 .sidebar-nav a:hover,
 .sidebar-nav a.active,
+.sidebar-nav-section-toggle.active,
 .sidebar-nav-section-toggle:hover,
 .sidebar-nav-section-toggle:focus-visible {
   background: var(--surface-strong);
@@ -660,6 +661,7 @@ code {
 .settings-section {
   display: grid;
   gap: 0.85rem;
+  scroll-margin-top: 5rem;
 }
 
 .settings-section-header {
