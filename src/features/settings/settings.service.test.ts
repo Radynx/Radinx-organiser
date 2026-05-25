@@ -119,6 +119,8 @@ describe('settings service', () => {
   })
 
   it('non avvia chiamate esterne quando Google non è configurato', async () => {
+    vi.stubEnv('VITE_GOOGLE_CALENDAR_CLIENT_ID', '')
+
     const connection = await startCalendarConnection('user-1', 'google')
 
     expect(connection.status).toBe('needs_configuration')
@@ -128,6 +130,24 @@ describe('settings service', () => {
         'calendarConnections.google': expect.objectContaining({
           enabled: true,
           status: 'needs_configuration',
+        }),
+      }),
+      { merge: true },
+    )
+  })
+
+  it('prepara Google Calendar quando il client OAuth è configurato', async () => {
+    vi.stubEnv('VITE_GOOGLE_CALENDAR_CLIENT_ID', 'client-id.apps.googleusercontent.com')
+
+    const connection = await startCalendarConnection('user-1', 'google')
+
+    expect(connection.status).toBe('ready_for_oauth')
+    expect(setDoc).toHaveBeenCalledWith(
+      { type: 'doc', path: 'users/user-1/settings/preferences' },
+      expect.objectContaining({
+        'calendarConnections.google': expect.objectContaining({
+          enabled: true,
+          status: 'ready_for_oauth',
         }),
       }),
       { merge: true },
