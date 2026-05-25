@@ -143,6 +143,20 @@ describe('AppLayout', () => {
     expect(screen.getByRole('dialog')).toHaveTextContent('20/05/2026 08:15')
   })
 
+  it('apre direttamente le impostazioni account dal menu profilo', async () => {
+    const user = userEvent.setup()
+    renderLayout()
+
+    await user.click(screen.getByRole('button', { name: /Codex User/ }))
+
+    const accountSettingsLink = screen.getByRole('menuitem', { name: 'Impostazioni account' })
+    expect(accountSettingsLink).toHaveAttribute('href', '/settings#settings-account')
+
+    await user.click(accountSettingsLink)
+
+    expect(screen.getByText('Settings view')).toBeInTheDocument()
+  })
+
   it('apre il menu profilo e fa logout con redirect al login', async () => {
     const user = userEvent.setup()
     renderLayout()

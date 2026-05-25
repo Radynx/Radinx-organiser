@@ -252,7 +252,7 @@ export function AppLayout() {
                 <UserRound size={16} aria-hidden="true" />
                 <span>Visualizza profilo</span>
               </button>
-              <Link role="menuitem" to="/settings" onClick={() => setProfileMenuOpen(false)}>
+              <Link role="menuitem" to="/settings#settings-account" onClick={() => setProfileMenuOpen(false)}>
                 <Settings size={16} aria-hidden="true" />
                 <span>Impostazioni account</span>
               </Link>
@@ -309,7 +309,7 @@ export function AppLayout() {
             icon={<Settings size={16} />}
             onClick={() => {
               setProfileModalOpen(false)
-              navigate('/settings')
+              navigate('/settings#settings-account')
             }}
           >
             Impostazioni account
