@@ -9,8 +9,8 @@ import {
   subWeeks,
 } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { CalendarPlus, ChevronLeft, ChevronRight, Filter, MapPin, Pencil, Trash2 } from 'lucide-react'
-import { useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react'
+import { CalendarPlus, ChevronLeft, ChevronRight, Filter, MapPin, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type MouseEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { Badge } from '@/components/Badge'
 import { Button } from '@/components/Button'
@@ -31,7 +31,14 @@ import {
   updateEvent,
 } from '@/features/calendar/events.service'
 import { useEvents } from '@/features/calendar/useEvents'
-import { getCategoryColor, getCategoryLabel } from '@/features/settings/categories'
+import {
+  cleanCategoryColor,
+  cleanCategoryLabel,
+  createCategoryId,
+  getCategoryColor,
+  getCategoryLabel,
+} from '@/features/settings/categories'
+import { saveCategorySettings } from '@/features/settings/settings.service'
 import { toUserMessage } from '@/lib/errors'
 import type { CalendarCategory, CalendarColors, CalendarEvent, CalendarView, Priority } from '@/types/domain'
 import {
@@ -86,6 +93,11 @@ export function CalendarPage() {
   const [deletingEvent, setDeletingEvent] = useState<CalendarEvent | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [categoryCreatorOpen, setCategoryCreatorOpen] = useState(false)
+  const [savingCategory, setSavingCategory] = useState(false)
+  const [categoryName, setCategoryName] = useState('')
+  const [categoryColor, setCategoryColor] = useState('#0ea5e9')
+  const [localCategories, setLocalCategories] = useState<CalendarCategory[]>([])
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all')
   const [keyword, setKeyword] = useState('')
@@ -95,10 +107,13 @@ export function CalendarPage() {
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: emptyEvent,
   })
+  const selectedCategory = watch('category')
 
   useEffect(() => {
     if (editingEvent) {
@@ -120,7 +135,25 @@ export function CalendarPage() {
     })
   }, [categoryFilter, events, keyword, priorityFilter])
 
-  const categoryOptions = settings.categories
+  const categoryOptions = useMemo(() => {
+    const settingsCategoryIds = new Set(settings.categories.map((category) => category.id))
+
+    return [
+      ...settings.categories,
+      ...localCategories.filter((category) => !settingsCategoryIds.has(category.id)),
+    ]
+  }, [localCategories, settings.categories])
+
+  const openCategoryCreator = () => {
+    setCategoryName('')
+    setCategoryColor('#0ea5e9')
+    setCategoryCreatorOpen(true)
+  }
+
+  const closeCategoryCreator = () => {
+    if (savingCategory) return
+    setCategoryCreatorOpen(false)
+  }
 
   const openCreateModal = (date = cursorDate) => {
     setEditingEvent(null)
@@ -153,6 +186,40 @@ export function CalendarPage() {
       setSaving(false)
     }
   })
+
+  const handleAddCategory = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!userId) return
+
+    const label = cleanCategoryLabel(categoryName)
+
+    if (label.length < 2) {
+      notify({ title: 'Categoria non valida', description: 'Inserisci almeno 2 caratteri.', variant: 'warning' })
+      return
+    }
+
+    setSavingCategory(true)
+    try {
+      const nextCategory = {
+        id: createCategoryId(label, categoryOptions.map((category) => category.id)),
+        label,
+        color: cleanCategoryColor(categoryColor),
+        system: false,
+      }
+
+      await saveCategorySettings(userId, [...categoryOptions, nextCategory], settings.hiddenCategoryIds)
+      setLocalCategories((current) => [...current, nextCategory])
+      setValue('category', nextCategory.id, { shouldDirty: true, shouldValidate: true })
+      setCategoryName('')
+      setCategoryColor('#0ea5e9')
+      setCategoryCreatorOpen(false)
+      notify({ title: 'Categoria creata', variant: 'success' })
+    } catch (error) {
+      notify({ title: 'Categoria non salvata', description: toUserMessage(error), variant: 'error' })
+    } finally {
+      setSavingCategory(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (!userId || !deletingEvent) return
@@ -339,13 +406,23 @@ export function CalendarPage() {
             type="time"
             {...register('endTime')}
           />
-          <SelectField error={errors.category?.message} label="Categoria" {...register('category')}>
-            {categoryOptions.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.label}
-              </option>
-            ))}
-          </SelectField>
+          <div className="category-picker-field">
+            <SelectField
+              error={errors.category?.message}
+              label="Categoria"
+              value={selectedCategory}
+              {...register('category')}
+            >
+              {categoryOptions.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.label}
+                </option>
+              ))}
+            </SelectField>
+            <Button variant="secondary" icon={<Plus size={16} />} onClick={openCategoryCreator}>
+              Crea categoria
+            </Button>
+          </div>
           <SelectField error={errors.priority?.message} label="Priorità" {...register('priority')}>
             <option value="low">Bassa</option>
             <option value="medium">Media</option>
@@ -399,6 +476,37 @@ export function CalendarPage() {
         onCancel={() => setDeletingEvent(null)}
         onConfirm={handleDelete}
       />
+
+      <Modal
+        open={categoryCreatorOpen}
+        onClose={closeCategoryCreator}
+        title="Crea categoria"
+        description="La nuova categoria sarà disponibile subito per questo evento e salvata nel tuo account."
+      >
+        <form className="form-grid" onSubmit={handleAddCategory}>
+          <InputField
+            autoFocus
+            label="Nome categoria"
+            maxLength={40}
+            value={categoryName}
+            onChange={(event) => setCategoryName(event.target.value)}
+          />
+          <InputField
+            label="Colore"
+            type="color"
+            value={categoryColor}
+            onChange={(event) => setCategoryColor(event.target.value)}
+          />
+          <footer className="modal-actions span-2">
+            <Button variant="secondary" onClick={closeCategoryCreator}>
+              Annulla
+            </Button>
+            <Button loading={savingCategory} type="submit" icon={<Plus size={16} />}>
+              Crea categoria
+            </Button>
+          </footer>
+        </form>
+      </Modal>
     </div>
   )
 }

@@ -611,6 +611,7 @@ code {
 }
 
 .panel-header {
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
@@ -1616,6 +1617,13 @@ code {
   align-items: end;
 }
 
+.category-picker-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+  align-items: end;
+}
+
 .category-list {
   display: grid;
   gap: 0.5rem;
@@ -2017,6 +2025,7 @@ code {
   }
 
   .category-create-form,
+  .category-picker-field,
   .category-row {
     grid-template-columns: 1fr;
   }

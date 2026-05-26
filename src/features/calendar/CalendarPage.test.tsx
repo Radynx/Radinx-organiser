@@ -4,6 +4,7 @@ import { addDays } from 'date-fns'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { defaultSettings } from '@/features/settings/defaultSettings'
+import { saveCategorySettings } from '@/features/settings/settings.service'
 import type { CalendarEvent } from '@/types/domain'
 import { formatDate, toISODate, todayISODate } from '@/utils/date'
 
@@ -48,8 +49,13 @@ vi.mock('@/features/calendar/events.service', () => ({
   updateEvent: vi.fn(),
 }))
 
+vi.mock('@/features/settings/settings.service', () => ({
+  saveCategorySettings: vi.fn(),
+}))
+
 describe('CalendarPage', () => {
   beforeEach(() => {
+    vi.mocked(saveCategorySettings).mockResolvedValue(undefined)
     eventsState.current = []
     settingsState.current = {
       ...defaultSettings,
@@ -104,6 +110,30 @@ describe('CalendarPage', () => {
 
     expect(within(dialog).getByRole('option', { name: 'Sport' })).toBeInTheDocument()
     expect(within(dialog).getByLabelText('Posizione')).toBeInTheDocument()
+  })
+
+  it('permette di creare una categoria mentre si crea un evento', async () => {
+    const user = userEvent.setup()
+    render(<CalendarPage />)
+
+    await user.click(screen.getByRole('button', { name: 'Nuovo evento' }))
+    const eventDialog = screen.getByRole('dialog', { name: 'Nuovo evento' })
+
+    await user.click(within(eventDialog).getByRole('button', { name: 'Crea categoria' }))
+    const categoryDialog = screen.getByRole('dialog', { name: 'Crea categoria' })
+
+    await user.type(within(categoryDialog).getByLabelText('Nome categoria'), 'Marketing')
+    await user.click(within(categoryDialog).getByRole('button', { name: 'Crea categoria' }))
+
+    expect(saveCategorySettings).toHaveBeenCalledWith(
+      'user-1',
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'marketing', label: 'Marketing', system: false }),
+      ]),
+      [],
+    )
+    expect(within(eventDialog).getByRole('option', { name: 'Marketing' })).toBeInTheDocument()
+    expect(within(eventDialog).getByLabelText('Categoria')).toHaveValue('marketing')
   })
 
   it('non apre la creazione evento quando si clicca sull’icona elimina', () => {

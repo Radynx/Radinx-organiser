@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Camera, KeyRound, Palette, PlugZap, Plus, Save, Shield, Tags, Trash2, Upload } from 'lucide-react'
+import { Camera, KeyRound, Palette, PlugZap, Plus, Save, Shield, Trash2, Upload } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router-dom'
@@ -104,6 +104,7 @@ export function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingPassword, setSavingPassword] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [categoryCreatorOpen, setCategoryCreatorOpen] = useState(false)
   const [calendarWizard, setCalendarWizard] = useState<CalendarProvider | null>(null)
   const [calendarLoading, setCalendarLoading] = useState<CalendarProvider | null>(null)
   const [categoryName, setCategoryName] = useState('')
@@ -140,6 +141,17 @@ export function SettingsPage() {
     target?.scrollIntoView({ block: 'start' })
   }, [loading, location.hash])
 
+  const openCategoryCreator = () => {
+    setCategoryName('')
+    setCategoryColor('#0ea5e9')
+    setCategoryCreatorOpen(true)
+  }
+
+  const closeCategoryCreator = () => {
+    if (savingCategories) return
+    setCategoryCreatorOpen(false)
+  }
+
   const handleAddCategory = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!userId) return
@@ -163,6 +175,7 @@ export function SettingsPage() {
       await saveCategorySettings(userId, [...settings.categories, nextCategory], settings.hiddenCategoryIds)
       setCategoryName('')
       setCategoryColor('#0ea5e9')
+      setCategoryCreatorOpen(false)
       notify({ title: 'Categoria creata', variant: 'success' })
     } catch (error) {
       notify({ title: 'Categoria non salvata', description: toUserMessage(error), variant: 'error' })
@@ -378,25 +391,16 @@ export function SettingsPage() {
                     <h2>Categorie e colori</h2>
                     <p>Crea, colora ed elimina le categorie del calendario.</p>
                   </div>
-                  <Tags size={20} aria-hidden="true" />
-                </header>
-                <form className="category-create-form" onSubmit={handleAddCategory}>
-                  <InputField
-                    label="Nome categoria"
-                    maxLength={40}
-                    value={categoryName}
-                    onChange={(event) => setCategoryName(event.target.value)}
-                  />
-                  <InputField
-                    label="Colore"
-                    type="color"
-                    value={categoryColor}
-                    onChange={(event) => setCategoryColor(event.target.value)}
-                  />
-                  <Button loading={savingCategories} type="submit" icon={<Plus size={16} />}>
-                    Aggiungi
+                  <Button
+                    disabled={savingCategories}
+                    size="sm"
+                    variant="secondary"
+                    icon={<Plus size={16} />}
+                    onClick={openCategoryCreator}
+                  >
+                    Crea categoria
                   </Button>
-                </form>
+                </header>
                 <div className="category-list">
                   {settings.categories.map((category) => (
                     <div className="category-row" key={category.id}>
@@ -630,6 +634,37 @@ export function SettingsPage() {
           </section>
         </div>
       )}
+
+      <Modal
+        open={categoryCreatorOpen}
+        onClose={closeCategoryCreator}
+        title="Crea categoria"
+        description="Scegli nome e colore: sarà salvata solo nel tuo account."
+      >
+        <form className="form-grid" onSubmit={handleAddCategory}>
+          <InputField
+            autoFocus
+            label="Nome categoria"
+            maxLength={40}
+            value={categoryName}
+            onChange={(event) => setCategoryName(event.target.value)}
+          />
+          <InputField
+            label="Colore"
+            type="color"
+            value={categoryColor}
+            onChange={(event) => setCategoryColor(event.target.value)}
+          />
+          <footer className="modal-actions span-2">
+            <Button variant="secondary" onClick={closeCategoryCreator}>
+              Annulla
+            </Button>
+            <Button loading={savingCategories} type="submit" icon={<Plus size={16} />}>
+              Crea categoria
+            </Button>
+          </footer>
+        </form>
+      </Modal>
 
       <Modal
         open={Boolean(calendarWizard)}
